@@ -24,4 +24,6 @@ Modele_appareil.init({
     timestamps: false,
 });
 
+Modele_appareil.belongsTo(Type_appareil, { foreignKey: 'type_appareil_id' });
+
 export default Modele_appareil;

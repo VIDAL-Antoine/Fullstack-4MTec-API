@@ -1,12 +1,14 @@
 <template>
-  <div class="type-appareils-container">
-    <h1>Type Appareils</h1>
-    <ul class="type-list">
-      <li v-for="type in types" :key="type.id" class="type-item">
+  <div class="appareils-container">
+    <h1>Appareils</h1>
+
+    <ul class="models-list">
+      <li v-for="model in models" :key="model.id" class="model-item">
         <div>
-          <strong>{{ type.nom }}</strong>
-          <button @click="modifierType(type)" class="modifier-btn">Modifier</button>
-          <button @click="supprimerType(type.id)" class="supprimer-btn">Supprimer</button>
+          <strong>{{ model.nom }}</strong>
+          <span>Type: {{ model.nomType }}</span>
+          <button @click="modifierModel(model)" class="modifier-btn">Modifier</button>
+          <button @click="supprimerType(model.id)" class="supprimer-btn">Supprimer</button>
         </div>
       </li>
     </ul>
@@ -18,17 +20,19 @@ export default {
   data() {
     return {
       types: [],
+      models: [],
     };
   },
   mounted() {
     this.fetchTypes();
+    this.fetchModels();
   },
   methods: {
     async fetchTypes() {
       try {
         const response = await fetch('http://localhost:3000/type_appareils');
         if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
+          throw new Error(`HTTP error Status: ${response.status}`);
         }
 
         const data = await response.json();
@@ -57,12 +61,56 @@ export default {
         console.error('Error deleting type:', error);
       }
     },
+
+
+
+
+    async fetchModels() {
+      try {
+        const response = await fetch('http://localhost:3000/modele_appareils');
+        if (!response.ok) {
+          throw new Error(`HTTP error Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        
+        this.models = data.map(model => {
+          return {
+            ...model,
+            typeName: model.Type_appareil ? model.Type_appareil.nom : null,
+          };
+        });
+
+        console.log('Fetched data:', this.models);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    },
+    async modifierModel(model) {
+      console.log('Modifier le modèle :', model);
+    },
+    async supprimerModel(modelId) {
+      try {
+        const response = await fetch(`http://localhost:3000/modele_appareils/${modelId}`, {
+          method: 'DELETE',
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error Status: ${response.status}`);
+        }
+
+        this.fetchModels();
+        console.log('Model deleted successfully !');
+      } catch (error) {
+        console.error('Error deleting model:', error);
+      }
+    },
   },
 };
 </script>
 
 <style scoped>
-.type-appareils-container {
+.appareils-container {
   max-width: 600px;
   margin: 0 auto;
 }
@@ -73,12 +121,12 @@ h1 {
   margin-bottom: 20px;
 }
 
-.type-list {
+.model-list {
   list-style: none;
   padding: 0;
 }
 
-.type-item {
+.model-item {
   margin-bottom: 15px;
   padding: 10px;
   border: 1px solid #ccc;
@@ -86,7 +134,7 @@ h1 {
   background-color: #f8f8f8;
 }
 
-.type-item div {
+.model-item div {
   display: flex;
   justify-content: space-between;
   align-items: center;
