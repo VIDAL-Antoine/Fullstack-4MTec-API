@@ -1,59 +1,115 @@
 <template>
-  <div class="hello">
-    <h1>{{ msg }}</h1>
-    <p>
-      For a guide and recipes on how to configure / customize this project,<br>
-      check out the
-      <a href="https://cli.vuejs.org" target="_blank" rel="noopener">vue-cli documentation</a>.
-    </p>
-    <h3>Installed CLI Plugins</h3>
-    <ul>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-typescript" target="_blank" rel="noopener">typescript</a></li>
-    </ul>
-    <h3>Essential Links</h3>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank" rel="noopener">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank" rel="noopener">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank" rel="noopener">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank" rel="noopener">Twitter</a></li>
-      <li><a href="https://news.vuejs.org" target="_blank" rel="noopener">News</a></li>
-    </ul>
-    <h3>Ecosystem</h3>
-    <ul>
-      <li><a href="https://router.vuejs.org" target="_blank" rel="noopener">vue-router</a></li>
-      <li><a href="https://vuex.vuejs.org" target="_blank" rel="noopener">vuex</a></li>
-      <li><a href="https://github.com/vuejs/vue-devtools#vue-devtools" target="_blank" rel="noopener">vue-devtools</a></li>
-      <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
+  <div class="type-appareils-container">
+    <h1>Type Appareils</h1>
+    <ul class="type-list">
+      <li v-for="type in types" :key="type.id" class="type-item">
+        <div>
+          <strong>{{ type.nom }}</strong>
+          <button @click="modifierType(type)" class="modifier-btn">Modifier</button>
+          <button @click="supprimerType(type.id)" class="supprimer-btn">Supprimer</button>
+        </div>
+      </li>
     </ul>
   </div>
 </template>
 
-<script lang="ts">
-import Vue from 'vue';
-
-export default Vue.extend({
-  name: 'HelloWorld',
-  props: {
-    msg: String,
+<script>
+export default {
+  data() {
+    return {
+      types: [],
+    };
   },
-});
+  mounted() {
+    this.fetchTypes();
+  },
+  methods: {
+    async fetchTypes() {
+      try {
+        const response = await fetch('http://localhost:3000/type_appareils');
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('Fetched data:', data);
+        this.types = data;
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    },
+    async modifierType(type) {
+      console.log('Modifier le type :', type);
+    },
+    async supprimerType(typeId) {
+      try {
+        const response = await fetch(`http://localhost:3000/type_appareils/${typeId}`, {
+          method: 'DELETE',
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        this.fetchTypes();
+        console.log('Type supprimé avec succès!');
+      } catch (error) {
+        console.error('Error deleting type:', error);
+      }
+    },
+  },
+};
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-h3 {
-  margin: 40px 0 0;
+.type-appareils-container {
+  max-width: 600px;
+  margin: 0 auto;
 }
-ul {
-  list-style-type: none;
+
+h1 {
+  color: #333;
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.type-list {
+  list-style: none;
   padding: 0;
 }
-li {
-  display: inline-block;
-  margin: 0 10px;
+
+.type-item {
+  margin-bottom: 15px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #f8f8f8;
 }
-a {
-  color: #42b983;
+
+.type-item div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.strong {
+  font-weight: bold;
+}
+
+.modifier-btn, .supprimer-btn {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.modifier-btn {
+  margin-right: 8px;
+}
+
+.supprimer-btn {
+  background-color: #dc3545;
 }
 </style>
