@@ -1,6 +1,10 @@
 import express, { json } from 'express';
 import cors from 'cors';
+import dotenv from 'dotenv';
 import Type_appareil from './type_appareil.js';
+import Modele_appareil from './modele_appareil.js';
+
+dotenv.config();
 
 const app = express();
 app.use(cors());
@@ -80,7 +84,7 @@ app.delete('/type_appareils/:id', async (req, res) => {
     }
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.NODE_PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });

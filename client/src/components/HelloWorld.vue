@@ -48,11 +48,11 @@ export default {
         });
 
         if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
+          throw new Error(`HTTP error Status: ${response.status}`);
         }
 
         this.fetchTypes();
-        console.log('Type supprimé avec succès!');
+        console.log('Type deleted successfully !');
       } catch (error) {
         console.error('Error deleting type:', error);
       }
