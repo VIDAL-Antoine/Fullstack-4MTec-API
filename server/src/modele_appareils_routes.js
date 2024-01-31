@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.get('/', async (req, res) => {
   try {
-    const { nom } = req.query;
+    const { nom, type_appareil_id, nomType } = req.query;
 
     const options = {
       include: Type_appareil,
@@ -16,6 +16,17 @@ router.get('/', async (req, res) => {
 
     if (nom) {
       options.where.nom = nom;
+    }
+
+    if (type_appareil_id) {
+      options.where.type_appareil_id = type_appareil_id;
+    }
+
+    if (nomType) {
+      options.include = [{
+        model: Type_appareil,
+        where: { nom: nomType }
+      }];
     }
 
     const models = await Modele_appareil.findAll(options);
@@ -33,6 +44,7 @@ router.get('/', async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
 
 router.get('/:id', async (req, res) => {
   const modelId = req.params.id;
@@ -61,7 +73,7 @@ router.get('/:id', async (req, res) => {
 });
 
 
-router.get('/by-type/:nomType', async (req, res) => {
+router.get('/by-type-name/:nomType', async (req, res) => {
   try {
     const { nomType } = req.params;
 
@@ -124,14 +136,40 @@ router.post('/', async (req, res) => {
 });
   
 router.put('/:id', async (req, res) => {
-      const modelId = req.params.id;
-      try {
-          await Modele_appareil.update(req.body, { where: { id: modelId } });
-          res.status(200).json({ message: 'Model updated successfully' });
-      } catch (error) {
-          console.error('Error updating model', error);
-          res.status(500).json({ error: 'Internal Server Error' });
+  const modelId = req.params.id;
+
+  try {
+    const existingModel = await Modele_appareil.findByPk(modelId, {
+      include: Type_appareil,
+    });
+
+    if (!existingModel) {
+      return res.status(404).json({ message: 'Model not found' });
+    }
+
+    if (req.body.nomType) {
+      const existingType = await Type_appareil.findByPk(existingModel.type_appareil_id);
+      if (existingType) {
+        existingType.nom = req.body.nomType;
+        await existingType.save();
+      } else {
+        return res.status(404).json({ message: 'Type not found' });
       }
+    }
+
+    existingModel.nom = req.body.nom || existingModel.nom;
+    await existingModel.save();
+
+    res.json({
+      id: existingModel.id,
+      nom: existingModel.nom,
+      type_appareil_id: existingModel.type_appareil_id,
+      nomType: existingModel.Type_appareil ? existingModel.Type_appareil.nom : null,
+    });
+  } catch (error) {
+    console.error('Error updating model', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
 });
   
 router.delete('/:id', async (req, res) => {
