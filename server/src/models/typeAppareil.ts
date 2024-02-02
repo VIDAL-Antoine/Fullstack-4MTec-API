@@ -2,7 +2,7 @@ import { DataTypes, Model, Sequelize } from 'sequelize';
 
 class TypeAppareil extends Model {
   public id!: number;
-  public nom!: string;
+  public nomType!: string;
 }
 
 export const initTypeAppareilModel = (sequelize: Sequelize) => {
@@ -13,7 +13,7 @@ export const initTypeAppareilModel = (sequelize: Sequelize) => {
         autoIncrement: true,
         primaryKey: true,
       },
-      nom: {
+      nomType: {
         type: DataTypes.STRING(255),
         allowNull: false,
       },

@@ -7,12 +7,41 @@ import { Op } from 'sequelize';
 const router = express.Router();
 
 router.get('/', async (req: Request, res: Response) => {
+  const { mac_address, etat, nomModele, nomType, id_modele, type_appareil_id } = req.query;
+  const filterOptions: any = {};
+
+  if (id_modele) {
+    filterOptions.id_modele = id_modele;
+  }
+
+  if (type_appareil_id) {
+    filterOptions['$modele.type_appareil_id$'] = type_appareil_id;
+  }
+
+  if (mac_address) {
+    filterOptions.mac_address = mac_address;
+  }
+
+  if (etat) {
+    filterOptions.etat = etat;
+  }
+
+  if (nomModele) {
+    filterOptions['$modele.nomModele$'] = nomModele;
+  }
+
+  if (nomType) {
+    filterOptions['$modele.type.nomType$'] = nomType;
+  }
+
   try {
     const appareils = await Appareil.findAll({
+      where: filterOptions,
       include: [
         { model: ModeleAppareil, as: 'modele', include: [{ model: TypeAppareil, as: 'type' }] }
       ]
     });
+
     res.json(appareils);
   } catch (error) {
     console.error(error);

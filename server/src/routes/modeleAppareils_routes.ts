@@ -5,10 +5,32 @@ import TypeAppareil from '../models/typeAppareil';
 const router = express.Router();
 
 router.get('/', async (req: Request, res: Response) => {
+  const { nomModele, nomType, type_appareil_id } = req.query;
+  const filterOptions: any = {};
+
+  if (nomModele) {
+    filterOptions.nomModele = nomModele;
+  }
+
+  if (type_appareil_id) {
+    filterOptions.type_appareil_id = type_appareil_id;
+  }
+
+  if (nomType) {
+    filterOptions['$type.nomType$'] = nomType;
+  }
+
   try {
     const modeles = await ModeleAppareil.findAll({
-      include: [{ model: TypeAppareil, as: 'type' }]
+      where: filterOptions,
+      include: [
+        {
+          model: TypeAppareil,
+          as: 'type',
+        },
+      ],
     });
+
     res.json(modeles);
   } catch (error) {
     console.error(error);
@@ -38,10 +60,10 @@ router.get('/:id', async (req: Request, res: Response) => {
 
 
 router.post('/', async (req: Request, res: Response) => {
-  const { nom, type_appareil_id } = req.body;
+  const { nomModele, type_appareil_id } = req.body;
 
   try {
-    const newModele = await ModeleAppareil.create({ nom, type_appareil_id });
+    const newModele = await ModeleAppareil.create({ nomModele, type_appareil_id });
     res.status(201).json(newModele);
   } catch (error) {
     console.error(error);
@@ -51,7 +73,7 @@ router.post('/', async (req: Request, res: Response) => {
 
 router.put('/:id', async (req: Request, res: Response) => {
   const modeleId = req.params.id;
-  const { nom, type_appareil_id } = req.body;
+  const { nomModele, type_appareil_id } = req.body;
 
   try {
     const modele = await ModeleAppareil.findByPk(modeleId);
@@ -61,7 +83,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       return;
     }
 
-    await modele.update({ nom, type_appareil_id });
+    await modele.update({ nomModele, type_appareil_id });
     res.json(modele);
   } catch (error) {
     console.error(error);

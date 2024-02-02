@@ -3,7 +3,7 @@ import TypeAppareil from './typeAppareil';
 
 class ModeleAppareil extends Model {
   public id!: number;
-  public nom!: string;
+  public nomModele!: string;
   public type_appareil_id!: number;
 }
 
@@ -15,7 +15,7 @@ export const initModeleAppareilModel = (sequelize: Sequelize) => {
         autoIncrement: true,
         primaryKey: true,
       },
-      nom: {
+      nomModele: {
         type: DataTypes.STRING(255),
         allowNull: false,
       },

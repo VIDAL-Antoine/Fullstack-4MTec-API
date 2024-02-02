@@ -2,7 +2,7 @@
   <div class="app-container">
     <h1 class="app-title">Appareils</h1>
 
-    <b-button @click="toggleAddDevice" variant="primary" class="mb-3">Ajouter un appareil</b-button>
+    <b-button @click="toggleAddDevice" variant="primary" class="mb-3">{{ isAddDeviceOpen ? 'Fermer' : 'Ajouter un appareil' }}</b-button>
 
     <b-collapse v-model="isAddDeviceOpen">
       <div class="add-device-form">
@@ -55,10 +55,10 @@
               <strong>ID:</strong> {{ appareil.id_appareil }}
             </div>
             <div>
-              <strong>Modèle:</strong> {{ appareil.modele ? appareil.modele.nom : 'N/A' }}
+              <strong>Modèle:</strong> {{ appareil.modele ? appareil.modele.nomModele : 'N/A' }}
             </div>
             <div>
-              <strong>Type:</strong> {{ appareil.modele && appareil.modele.type ? appareil.modele.type.nom : 'N/A' }}
+              <strong>Type:</strong> {{ appareil.modele && appareil.modele.type ? appareil.modele.type.nomType : 'N/A' }}
             </div>
             <div>
               <strong>MAC Address:</strong> {{ appareil.mac_address }}
@@ -70,9 +70,9 @@
 
           <div class="button-column">
             <div class="d-flex flex-column">
-              <b-button @click="changeState(appareil)" variant="secondary">Changer état</b-button>
-              <b-button variant="info" class="my-3">Connecter</b-button>
-              <b-button @click="deleteAppareil(appareil.id_appareil)" variant="danger">Supprimer</b-button>
+              <b-button @click="changeState(appareil)" variant="secondary" class="mb-3">Changer état</b-button>
+              <b-button v-if="appareil.etat === 'installé'" variant="info">Connecter</b-button>
+              <b-button @click="deleteAppareil(appareil.id_appareil)" variant="danger" class="mt-3">Supprimer</b-button>
           </div>
           </div>
         </div>
@@ -90,7 +90,7 @@ interface Appareil {
   id_appareil: number;
   mac_address: string;
   etat: string;
-  modele: { nom: string; type: { nom: string } } | null;
+  modele: { nomModele: string; type: { nomType: string } } | null;
 }
 
 export default defineComponent({
@@ -116,7 +116,7 @@ export default defineComponent({
       if (this.modelNameFilter) {
         filtered = filtered.filter((appareil) => {
           return (
-            appareil.modele && appareil.modele.nom.toLowerCase().startsWith(this.modelNameFilter.toLowerCase())
+            appareil.modele && appareil.modele.nomModele.toLowerCase().startsWith(this.modelNameFilter.toLowerCase())
           );
         });
       }
@@ -124,7 +124,7 @@ export default defineComponent({
       if (this.typeNameFilter) {
         filtered = filtered.filter((appareil) => {
           return (
-            appareil.modele && appareil.modele.type && appareil.modele.type.nom.toLowerCase().startsWith(this.typeNameFilter.toLowerCase())
+            appareil.modele && appareil.modele.type && appareil.modele.type.nomType.toLowerCase().startsWith(this.typeNameFilter.toLowerCase())
           );
         });
       }
@@ -199,9 +199,9 @@ export default defineComponent({
     async loadModelOptions() {
       try {
         const response = await axios.get(`${API_BASE_URL}/modele_appareils`);
-        this.modelOptions = response.data.map((modele: { id: number; nom: string }) => ({
+        this.modelOptions = response.data.map((modele: { id: number; nomModele: string }) => ({
           value: modele.id,
-          text: modele.nom,
+          text: modele.nomModele,
         }));
       } catch (error) {
         console.error('Error loading model options:', error);

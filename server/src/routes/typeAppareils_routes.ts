@@ -4,11 +4,11 @@ import TypeAppareil from '../models/typeAppareil.js';
 const router = express.Router();
 
 router.get('/', async (req: Request, res: Response) => {
-  const { nom } = req.query;
+  const { nomType } = req.query;
   const filterOptions: any = {};
 
-  if (nom) {
-    filterOptions.nom = nom;
+  if (nomType) {
+    filterOptions.nomType = nomType;
   }
 
   try {
