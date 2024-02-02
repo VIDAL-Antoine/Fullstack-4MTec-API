@@ -1,56 +1,66 @@
 <template>
-  <div class="app-container">
-    <h1 class="app-title">Appareils</h1>
+  <div class="container">
+    <h1 class="display-2 text-center my-4">Appareils</h1>
 
     <b-button @click="toggleAddDevice" variant="primary" class="mb-3">{{ isAddDeviceOpen ? 'Fermer' : 'Ajouter un appareil' }}</b-button>
 
     <b-collapse v-model="isAddDeviceOpen">
-      <div class="add-device-form">
-        <div>
-          <label for="modelDropdown">Modèle d'appareil : </label>
-          <b-form-select v-model="selectedModelId" :options="modelOptions" :values="modelOptions" id="modelDropdown" class="mb-2 ml-2"></b-form-select>
+      <div class="p-3 my-4 border rounded">
+        <div class="d-flex align-items-center my-3">
+          <div class="mr-3">
+            <label for="modelDropdown" class="col-form-label">Modèle d'appareil :</label>
+          </div>
+
+          <div class="flex-grow-1">
+            <b-form-select v-model="selectedModelId" :options="modelOptions" :values="modelOptions" id="modelDropdown" class="form-select"></b-form-select>
+          </div>
         </div>
 
-        <div class="input-text-group">
-          <label for="newMacAddress">Adresse MAC de l'appareil : </label>
-          <input type="text" id="newMacAddress" v-model="MacAddress" class="form-control input-text-field">
+        <div class="d-flex align-items-center my-3">
+          <label for="newMacAddress" class="col-form-label">Adresse MAC de l'appareil :</label>
+          <input type="text" id="newMacAddress" v-model="MacAddress" class="form-control">
         </div>
 
-        <div>
-          <label for="stateDropdown">État de l'appareil : </label>
-          <b-form-select v-model="selectedState" :options="stateCycle" id="stateDropdown" class="mb-2 ml-2"></b-form-select>
+        <div class="d-flex align-items-center my-3">
+          <div class="mr-3">
+            <label for="stateDropdown" class="col-form-label">État de l'appareil :</label>
+          </div>
+
+          <div class="flex-grow-1">
+            <b-form-select v-model="selectedState" :options="stateCycle" id="stateDropdown" class="form-select"></b-form-select>
+          </div>
         </div>
 
         <b-button @click="addDevice" variant="success">Ajouter</b-button>
       </div>
     </b-collapse>
 
-    <div class="filter-container">
-      <div class="input-text-group">
+    <div class="d-flex flex-column">
+      <div class="d-flex align-items-center my-2">
         <label for="typeNameFilter">Filtrer par nom de type : </label>
-        <input v-model="typeNameFilter" type="text" id="typeNameFilter" class="input-text-field" />
+        <input v-model="typeNameFilter" type="text" id="typeNameFilter" class="form-control" />
       </div>
 
-      <div class="input-text-group">
+      <div class="d-flex align-items-center my-2">
         <label for="modelNameFilter">Filtrer par nom de modèle : </label>
-        <input v-model="modelNameFilter" type="text" id="modelNameFilter" class="input-text-field" />
+        <input v-model="modelNameFilter" type="text" id="modelNameFilter" class="form-control" />
       </div>
 
-      <div class="input-text-group">
+      <div class="d-flex align-items-center my-2">
         <label for="macAddressFilter">Filtrer par adresse MAC : </label>
-        <input v-model="macAddressFilter" type="text" id="macAddressFilter" class="input-text-field" />
+        <input v-model="macAddressFilter" type="text" id="macAddressFilter" class="form-control" />
       </div>
 
-      <div class="input-text-group">
+      <div class="d-flex align-items-center my-2">
         <label for="etatFilter">Filtrer par état : </label>
-        <input v-model="etatFilter" type="text" id="etatFilter" class="input-text-field" />
+        <input v-model="etatFilter" type="text" id="etatFilter" class="form-control" />
       </div>
     </div>
 
-    <ul class="appareils-list">
-      <li v-for="appareil in filteredAppareils" :key="appareil.id_appareil" class="appareil-item">
-        <div class="grid-container">
-          <div class="details-column">
+    <ul class="appareils-list my-5">
+      <li v-for="appareil in filteredAppareils" :key="appareil.id_appareil" class="appareils-list">
+        <div class="row border rounded p-3 my-3 mx-0">
+          <div class="col-md">
             <div>
               <strong>ID:</strong> {{ appareil.id_appareil }}
             </div>
@@ -68,11 +78,11 @@
             </div>
           </div>
 
-          <div class="button-column">
+          <div class="col-md">
             <div class="d-flex flex-column">
-              <b-button @click="changeState(appareil)" variant="secondary" class="mb-3">Changer état</b-button>
-              <b-button v-if="appareil.etat === 'installé'" variant="info">Connecter</b-button>
-              <b-button @click="deleteAppareil(appareil.id_appareil)" variant="danger" class="mt-3">Supprimer</b-button>
+              <b-button @click="changeState(appareil)" variant="secondary" class="my-1 col-6 ml-auto">Changer état</b-button>
+              <b-button v-if="appareil.etat === 'installé'" variant="info" class="my-1 col-6 ml-auto">Connecter</b-button>
+              <b-button @click="deleteAppareil(appareil.id_appareil)" variant="danger" class="my-1 col-6 ml-auto">Supprimer</b-button>
           </div>
           </div>
         </div>
@@ -247,80 +257,18 @@ export default defineComponent({
 
 
 <style scoped>
-.app-container {
+.container {
   max-width: 800px;
   margin: auto;
 }
-.app-title {
-  margin: 20px 0;
-  text-align: center;
-}
 
-.filter-container {
-  display: flex;
-  flex-direction: column;
-}
-
-.input-text-group {
-  display: flex;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.input-text-field {
-  flex: 1;
-  padding: 8px;
-  margin-left: 10px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-}
-
-.appareils-list {
+ul.appareils-list {
   list-style: none;
   padding: 0;
 }
 
-.appareil-item {
-  border: 1px solid #ddd;
-  padding: 10px;
-  margin-bottom: 10px;
-  border-radius: 5px;
-  display: grid;
-  grid-template-columns: 1fr 150px;
-}
-
-.appareil-item div {
-  margin-bottom: 5px;
-}
-
-.grid-container {
-  grid-column: 1 / -1;
-  display: grid;
-  grid-template-columns: 1fr 150px;
-}
-
-.details-column {
-  grid-column: 1;
-}
-
-.button-column {
-  grid-column: 2;
-}
-
-.add-device-form {
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  margin-top: 10px;
-  margin-bottom: 50px;
-}
-
-.dropdown-input {
-  flex: 1;
-  padding: 8px;
-  margin-left: 10px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
+li.appareils-list {
+  margin: 0;
 }
 
 </style>
