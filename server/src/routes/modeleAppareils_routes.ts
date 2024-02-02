@@ -1,11 +1,14 @@
 import express, { Request, Response } from 'express';
 import ModeleAppareil from '../models/modeleAppareil';
+import TypeAppareil from '../models/typeAppareil';
 
 const router = express.Router();
 
 router.get('/', async (req: Request, res: Response) => {
   try {
-    const modeles = await ModeleAppareil.findAll();
+    const modeles = await ModeleAppareil.findAll({
+      include: [{ model: TypeAppareil, as: 'type' }]
+    });
     res.json(modeles);
   } catch (error) {
     console.error(error);
@@ -17,7 +20,9 @@ router.get('/:id', async (req: Request, res: Response) => {
   const modeleId = req.params.id;
 
   try {
-    const modele = await ModeleAppareil.findByPk(modeleId);
+    const modele = await ModeleAppareil.findByPk(modeleId, {
+      include: [{ model: TypeAppareil, as: 'type' }]
+    });
 
     if (!modele) {
       res.status(404).json({ error: 'Modele not found' });
@@ -30,6 +35,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
 
 router.post('/', async (req: Request, res: Response) => {
   const { nom, type_appareil_id } = req.body;
