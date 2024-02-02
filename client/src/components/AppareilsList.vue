@@ -26,20 +26,29 @@
 
     <ul class="appareils-list">
       <li v-for="appareil in filteredAppareils" :key="appareil.id_appareil" class="appareil-item">
-        <div>
-          <strong>ID:</strong> {{ appareil.id_appareil }}
-        </div>
-        <div>
-          <strong>Modèle:</strong> {{ appareil.modele ? appareil.modele.nom : 'N/A' }}
-        </div>
-        <div>
-          <strong>Type:</strong> {{ appareil.modele && appareil.modele.type ? appareil.modele.type.nom : 'N/A' }}
-        </div>
-        <div>
-          <strong>MAC Address:</strong> {{ appareil.mac_address }}
-        </div>
-        <div>
-          <strong>État:</strong> {{ appareil.etat }}
+        <div class="grid-container">
+          <div class="details-column">
+            <div>
+              <strong>ID:</strong> {{ appareil.id_appareil }}
+            </div>
+            <div>
+              <strong>Modèle:</strong> {{ appareil.modele ? appareil.modele.nom : 'N/A' }}
+            </div>
+            <div>
+              <strong>Type:</strong> {{ appareil.modele && appareil.modele.type ? appareil.modele.type.nom : 'N/A' }}
+            </div>
+            <div>
+              <strong>MAC Address:</strong> {{ appareil.mac_address }}
+            </div>
+            <div>
+              <strong>État:</strong> {{ appareil.etat }}
+            </div>
+          </div>
+
+          <div class="button-column">
+            <b-button @click="changeState(appareil)" variant="secondary" class="my-5">Changer état</b-button>
+            <b-button @click="deleteAppareil(appareil.id_appareil)" variant="danger" class="my-5">Supprimer</b-button>
+          </div>
         </div>
       </li>
     </ul>
@@ -128,6 +137,32 @@ export default defineComponent({
         console.error('Error fetching filtered appareils:', error);
       }
     },
+
+    async changeState(appareil: Appareil) {
+      const currentState = appareil.etat;
+      const stateCycle = ['stock', 'installé', 'maintenance'];
+      const currentIndex = stateCycle.indexOf(currentState);
+      const nextState = stateCycle[(currentIndex + 1) % stateCycle.length];
+
+      try {
+        appareil.etat = nextState;
+        await axios.put(`${API_BASE_URL}/appareils/${appareil.id_appareil}`, {
+          etat: nextState,
+        });
+      } catch (error) {
+        console.error('Error changing etat appareil:', error);
+      }
+    },
+
+    async deleteAppareil(idAppareil: number) {
+      try {
+        await axios.delete(`${API_BASE_URL}/appareils/${idAppareil}`);
+        this.appareils = this.appareils.filter(appareil => appareil.id_appareil !== idAppareil);
+        console.log('Appareil deleted successfully');
+      } catch (error) {
+        console.error('Error deleting appareil:', error);
+      }
+    },
   },
 });
 </script>
@@ -172,9 +207,26 @@ export default defineComponent({
   padding: 10px;
   margin-bottom: 10px;
   border-radius: 5px;
+  display: grid;
+  grid-template-columns: 1fr 150px;
 }
 
 .appareil-item div {
   margin-bottom: 5px;
 }
+
+.grid-container {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 1fr 150px;
+}
+
+.details-column {
+  grid-column: 1;
+}
+
+.button-column {
+  grid-column: 2;
+}
+
 </style>

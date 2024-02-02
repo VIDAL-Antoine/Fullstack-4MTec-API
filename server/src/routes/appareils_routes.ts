@@ -65,6 +65,12 @@ router.put('/:id', async (req: Request, res: Response) => {
       return;
     }
 
+    const stateCycle = ['stock', 'installé', 'maintenance'];
+    if (!stateCycle.includes(etat)) {
+      res.status(400).json({ error: 'Invalid device state value' });
+      return;
+    }
+
     await appareil.update({ id_modele, mac_address, etat });
     res.json(appareil);
   } catch (error) {
