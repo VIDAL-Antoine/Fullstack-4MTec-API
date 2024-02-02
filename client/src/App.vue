@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-app-bar app color="primary" dark>AAA</v-app-bar>
+    <v-app-bar app color="primary" dark>Application Fullstack 4MTec</v-app-bar>
 
     <v-main>
       <AppareilsList />

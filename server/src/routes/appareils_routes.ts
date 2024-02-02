@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express';
 import Appareil from '../models/appareil';
 import ModeleAppareil from '../models/modeleAppareil';
 import TypeAppareil from '../models/typeAppareil';
+import { Op } from 'sequelize';
 
 const router = express.Router();
 
@@ -43,8 +44,19 @@ router.get('/:id', async (req: Request, res: Response) => {
 
 router.post('/', async (req: Request, res: Response) => {
   const { id_modele, mac_address, etat } = req.body;
-
   try {
+    const existingAppareil = await Appareil.findOne({
+      where: {
+        mac_address: {
+          [Op.eq]: mac_address,
+        },
+      },
+    });
+  
+    if (existingAppareil) {
+      return res.status(409).json({ error: 'MAC already exists' });
+    }
+  
     const newAppareil = await Appareil.create({ id_modele, mac_address, etat });
     res.status(201).json(newAppareil);
   } catch (error) {

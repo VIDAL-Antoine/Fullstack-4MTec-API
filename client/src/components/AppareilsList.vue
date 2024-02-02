@@ -2,25 +2,48 @@
   <div class="app-container">
     <h1 class="app-title">Appareils</h1>
 
+    <b-button @click="toggleAddDevice" variant="primary" class="mb-3">Ajouter un appareil</b-button>
+
+    <b-collapse v-model="isAddDeviceOpen">
+      <div class="add-device-form">
+        <div>
+          <label for="modelDropdown">Modèle d'appareil : </label>
+          <b-form-select v-model="selectedModelId" :options="modelOptions" :values="modelOptions" id="modelDropdown" class="mb-2 ml-2"></b-form-select>
+        </div>
+
+        <div class="input-text-group">
+          <label for="newMacAddress">Adresse MAC de l'appareil : </label>
+          <input type="text" id="newMacAddress" v-model="MacAddress" class="form-control input-text-field">
+        </div>
+
+        <div>
+          <label for="stateDropdown">État de l'appareil : </label>
+          <b-form-select v-model="selectedState" :options="stateCycle" id="stateDropdown" class="mb-2 ml-2"></b-form-select>
+        </div>
+
+        <b-button @click="addDevice" variant="success">Ajouter</b-button>
+      </div>
+    </b-collapse>
+
     <div class="filter-container">
-      <div class="filter-group">
+      <div class="input-text-group">
         <label for="typeNameFilter">Filtrer par nom de type : </label>
-        <input v-model="typeNameFilter" type="text" id="typeNameFilter" class="filter-input" />
+        <input v-model="typeNameFilter" type="text" id="typeNameFilter" class="input-text-field" />
       </div>
 
-      <div class="filter-group">
+      <div class="input-text-group">
         <label for="modelNameFilter">Filtrer par nom de modèle : </label>
-        <input v-model="modelNameFilter" type="text" id="modelNameFilter" class="filter-input" />
+        <input v-model="modelNameFilter" type="text" id="modelNameFilter" class="input-text-field" />
       </div>
 
-      <div class="filter-group">
+      <div class="input-text-group">
         <label for="macAddressFilter">Filtrer par adresse MAC : </label>
-        <input v-model="macAddressFilter" type="text" id="macAddressFilter" class="filter-input" />
+        <input v-model="macAddressFilter" type="text" id="macAddressFilter" class="input-text-field" />
       </div>
 
-      <div class="filter-group">
+      <div class="input-text-group">
         <label for="etatFilter">Filtrer par état : </label>
-        <input v-model="etatFilter" type="text" id="etatFilter" class="filter-input" />
+        <input v-model="etatFilter" type="text" id="etatFilter" class="input-text-field" />
       </div>
     </div>
 
@@ -46,8 +69,11 @@
           </div>
 
           <div class="button-column">
-            <b-button @click="changeState(appareil)" variant="secondary" class="my-5">Changer état</b-button>
-            <b-button @click="deleteAppareil(appareil.id_appareil)" variant="danger" class="my-5">Supprimer</b-button>
+            <div class="d-flex flex-column">
+              <b-button @click="changeState(appareil)" variant="secondary">Changer état</b-button>
+              <b-button variant="info" class="my-3">Connecter</b-button>
+              <b-button @click="deleteAppareil(appareil.id_appareil)" variant="danger">Supprimer</b-button>
+          </div>
           </div>
         </div>
       </li>
@@ -75,6 +101,12 @@ export default defineComponent({
       typeNameFilter: '',
       macAddressFilter: '',
       etatFilter: '',
+      isAddDeviceOpen: false,
+      modelOptions: [] as { value: number, text: string; }[],
+      selectedModelId: 0,
+      MacAddress: null,
+      stateCycle: ['stock', 'installé', 'maintenance'] as string[],
+      selectedState: null,
     };
   },
   computed: {
@@ -116,6 +148,7 @@ export default defineComponent({
     try {
       const response = await axios.get(`${API_BASE_URL}/appareils`);
       this.appareils = response.data;
+      this.appareils.sort((a, b) => a.id_appareil - b.id_appareil);
     } catch (error) {
       console.error('Error fetching appareils:', error);
     }
@@ -140,9 +173,8 @@ export default defineComponent({
 
     async changeState(appareil: Appareil) {
       const currentState = appareil.etat;
-      const stateCycle = ['stock', 'installé', 'maintenance'];
-      const currentIndex = stateCycle.indexOf(currentState);
-      const nextState = stateCycle[(currentIndex + 1) % stateCycle.length];
+      const currentIndex = this.stateCycle.indexOf(currentState);
+      const nextState = this.stateCycle[(currentIndex + 1) % this.stateCycle.length];
 
       try {
         appareil.etat = nextState;
@@ -163,6 +195,52 @@ export default defineComponent({
         console.error('Error deleting appareil:', error);
       }
     },
+  
+    async loadModelOptions() {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/modele_appareils`);
+        this.modelOptions = response.data.map((modele: { id: number; nom: string }) => ({
+          value: modele.id,
+          text: modele.nom,
+        }));
+      } catch (error) {
+        console.error('Error loading model options:', error);
+      }
+    },
+
+    toggleAddDevice() {
+      this.isAddDeviceOpen = !this.isAddDeviceOpen;
+      if (this.isAddDeviceOpen) {
+        this.loadModelOptions();
+      }
+    },
+
+    async addDevice() {
+      try {
+        const { selectedModelId, MacAddress, selectedState } = this;
+        const response = await axios.post(`${API_BASE_URL}/appareils`, {
+          id_modele: selectedModelId,
+          mac_address: MacAddress,
+          etat: selectedState,
+        });
+
+        const addedDeviceId = response.data.id_appareil;
+        const addedDeviceResponse = await axios.get(`${API_BASE_URL}/appareils/${addedDeviceId}`);
+
+        const updatedAppareil = addedDeviceResponse.data;
+        this.appareils.push(updatedAppareil);
+
+
+        this.selectedModelId = 0;
+        this.MacAddress = null;
+        this.selectedState = null;
+        this.isAddDeviceOpen = false;
+      } catch (error) {
+        console.error('Error adding device:', error);
+      }
+    },
+
+
   },
 });
 </script>
@@ -183,13 +261,13 @@ export default defineComponent({
   flex-direction: column;
 }
 
-.filter-group {
+.input-text-group {
   display: flex;
   align-items: center;
   margin-bottom: 10px;
 }
 
-.filter-input {
+.input-text-field {
   flex: 1;
   padding: 8px;
   margin-left: 10px;
@@ -227,6 +305,22 @@ export default defineComponent({
 
 .button-column {
   grid-column: 2;
+}
+
+.add-device-form {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  margin-top: 10px;
+  margin-bottom: 50px;
+}
+
+.dropdown-input {
+  flex: 1;
+  padding: 8px;
+  margin-left: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
 }
 
 </style>
