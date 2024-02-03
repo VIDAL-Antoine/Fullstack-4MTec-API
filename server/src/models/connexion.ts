@@ -5,8 +5,6 @@ class Connexion extends Model {
   public id_connexion!: number;
   public id_appareil_parent!: number;
   public id_appareil_enfant!: number;
-  public mac_address_parent!: string;
-  public mac_address_enfant!: string;
   public datedebut!: DateOnlyDataType;
   public datefin?: DateOnlyDataType;
 }
@@ -25,14 +23,6 @@ export const initConnexionModel = (sequelize: Sequelize) => {
       },
       id_appareil_enfant: {
         type: DataTypes.INTEGER,
-        allowNull: false,
-      },
-      mac_address_parent: {
-        type: DataTypes.STRING(17),
-        allowNull: false,
-      },
-      mac_address_enfant: {
-        type: DataTypes.STRING(17),
         allowNull: false,
       },
       datedebut: {

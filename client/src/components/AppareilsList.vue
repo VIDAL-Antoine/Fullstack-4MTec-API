@@ -90,8 +90,8 @@
 
     <ul class="appareils-list my-5">
       <li v-for="appareil in filteredAppareils" :key="appareil.id_appareil" class="appareils-list">
-        <div class="row border rounded p-3 my-3 mx-0">
-          <div class="col-md">
+        <div class="row border rounded px-1 py-3 my-3 mx-0">
+          <div class="col-md-6">
             <div>
               <strong>ID:</strong> {{ appareil.id_appareil }}
             </div>
@@ -107,13 +107,30 @@
             <div>
               <strong>État:</strong> {{ appareil.etat }}
             </div>
+
+            <div class="mt-3">
+              <strong>Est connecté à :</strong>
+              <ul>
+                <li v-for="connexion in getParentConnexions(appareil.id_appareil)" :key="connexion.id_connexion">
+                  Appareil {{ connexion.id_appareil_parent }} ← Appareil {{ connexion.id_appareil_enfant }} ({{ connexion.datedebut }} → {{ connexion.datefin || "∞"}})
+                </li>
+              </ul>
+            </div>
           </div>
 
-          <div class="col-md">
+          <div class="col-md-6">
             <div class="d-flex flex-column">
-              <b-button @click="changeState(appareil)" variant="secondary" class="my-1 col-5 ml-auto">Changer état</b-button>
-              <b-button @click="deleteAppareil(appareil.id_appareil)" variant="danger" class="my-1 col-5 ml-auto">Supprimer</b-button>
-          </div>
+              <b-button @click="changeState(appareil)" variant="secondary" class="my-1 ml-auto">Changer état</b-button>
+              <b-button @click="deleteAppareil(appareil.id_appareil)" variant="danger" class="my-1 ml-auto">Supprimer</b-button>
+              <div class="mt-10">
+                <strong>Se connecte à (unique!) :</strong>
+                <ul>
+                    <li v-for="connexion in getChildConnexion(appareil.id_appareil)" :key="connexion.id_connexion">
+                      Appareil {{ connexion.id_appareil_enfant }} → Appareil {{ connexion.id_appareil_parent }} ({{ connexion.datedebut }} → {{ connexion.datefin || "∞"}})
+                    </li>
+                </ul>
+              </div>
+            </div>
           </div>
         </div>
       </li>
@@ -133,6 +150,15 @@ interface Appareil {
   modele: { nomModele: string; type: { nomType: string } } | null;
 }
 
+interface Connexion {
+  id_connexion: number;
+  id_appareil_parent: number;
+  id_appareil_enfant: number;
+  datedebut: string;
+  datefin?: string | null;
+}
+
+
 export default defineComponent({
   data() {
     return {
@@ -148,6 +174,7 @@ export default defineComponent({
       stateCycle: ['stock', 'installé', 'maintenance'] as string[],
       selectedState: null,
       isConnectDeviceOpen: false,
+      connexions: [] as Connexion[],
     };
   },
   computed: {
@@ -187,9 +214,12 @@ export default defineComponent({
   },
   async mounted() {
     try {
-      const response = await axios.get(`${API_BASE_URL}/appareils`);
-      this.appareils = response.data;
+      const appareilsResponse = await axios.get(`${API_BASE_URL}/appareils`);
+      this.appareils = appareilsResponse.data;
       this.appareils.sort((a, b) => a.id_appareil - b.id_appareil);
+
+      const connexionsResponse = await axios.get(`${API_BASE_URL}/connexions`);
+      this.connexions = connexionsResponse.data;
     } catch (error) {
       console.error('Error fetching appareils:', error);
     }
@@ -293,6 +323,14 @@ export default defineComponent({
 
     },
 
+    getParentConnexions(appareilId: number) {
+      return this.connexions.filter(connexion => connexion.id_appareil_parent === appareilId);
+    },
+
+    getChildConnexion(appareilId: number) {
+      return this.connexions.filter(connexion => connexion.id_appareil_enfant === appareilId);
+    },
+
   },
 });
 </script>
@@ -300,7 +338,7 @@ export default defineComponent({
 
 <style scoped>
 .container {
-  max-width: 800px;
+  max-width: 880px;
   margin: auto;
 }
 

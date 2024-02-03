@@ -5,7 +5,7 @@ import { Op } from 'sequelize';
 const router = express.Router();
 
 router.get('/', async (req: Request, res: Response) => {
-    const { id_appareil_parent, id_appareil_enfant, mac_address_parent, mac_address_enfant, datedebut, datefin } = req.query;
+    const { id_appareil_parent, id_appareil_enfant, datedebut, datefin } = req.query;
     const filterOptions: any = {};
   
     if (id_appareil_parent) {
@@ -14,14 +14,6 @@ router.get('/', async (req: Request, res: Response) => {
   
     if (id_appareil_enfant) {
       filterOptions.id_appareil_enfant = id_appareil_enfant;
-    }
-  
-    if (mac_address_parent) {
-      filterOptions.mac_address_parent = mac_address_parent;
-    }
-  
-    if (mac_address_enfant) {
-      filterOptions.mac_address_enfant = mac_address_enfant;
     }
   
     if (datedebut) {
@@ -73,9 +65,9 @@ router.get('/:id', async (req: Request, res: Response) => {
 });
 
 router.post('/', async (req: Request, res: Response) => {
-  const { id_appareil_parent, id_appareil_enfant, mac_address_parent, mac_address_enfant, datedebut, datefin } = req.body;
+  const { id_appareil_parent, id_appareil_enfant, datedebut, datefin } = req.body;
   try {
-    const newConnexion = await Connexion.create({ id_appareil_parent, id_appareil_enfant, mac_address_parent, mac_address_enfant, datedebut, datefin});
+    const newConnexion = await Connexion.create({ id_appareil_parent, id_appareil_enfant, datedebut, datefin});
     res.status(201).json(newConnexion);
   } catch (error) {
     console.error(error);
@@ -85,7 +77,7 @@ router.post('/', async (req: Request, res: Response) => {
 
 router.put('/:id', async (req: Request, res: Response) => {
   const connexionId = req.params.id;
-  const { id_appareil_parent, id_appareil_enfant, mac_address_parent, mac_address_enfant, datedebut, datefin } = req.body;
+  const { id_appareil_parent, id_appareil_enfant, datedebut, datefin } = req.body;
 
   try {
     const connexion = await Connexion.findByPk(connexionId);
@@ -95,7 +87,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       return;
     }
 
-    await connexion.update({ id_appareil_parent, id_appareil_enfant, mac_address_parent, mac_address_enfant, datedebut, datefin });
+    await connexion.update({ id_appareil_parent, id_appareil_enfant, datedebut, datefin });
     res.json(connexion);
   } catch (error) {
     console.error(error);
