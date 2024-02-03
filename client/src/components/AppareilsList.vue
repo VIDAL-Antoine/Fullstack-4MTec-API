@@ -2,38 +2,69 @@
   <div class="container">
     <h1 class="display-2 text-center my-4">Appareils</h1>
 
-    <b-button @click="toggleAddDevice" variant="primary" class="mb-3">{{ isAddDeviceOpen ? 'Fermer' : 'Ajouter un appareil' }}</b-button>
+    <div>
+      <b-button @click="toggleAddDevice" variant="primary" class="my-2">{{ isAddDeviceOpen ? 'Fermer' : 'Ajouter un appareil' }}</b-button>
 
-    <b-collapse v-model="isAddDeviceOpen">
-      <div class="p-3 my-4 border rounded">
-        <div class="d-flex align-items-center my-3">
-          <div class="mr-3">
-            <label for="modelDropdown" class="col-form-label">Modèle d'appareil :</label>
+      <b-collapse v-model="isAddDeviceOpen">
+        <div class="p-3 my-4 border rounded">
+          <div class="d-flex align-items-center my-3">
+            <div class="mr-3">
+              <label for="modelDropdown" class="col-form-label">Modèle d'appareil :</label>
+            </div>
+
+            <div class="flex-grow-1">
+              <b-form-select v-model="selectedModelId" :options="modelOptions" :values="modelOptions" id="modelDropdown" class="form-select"></b-form-select>
+            </div>
           </div>
 
-          <div class="flex-grow-1">
-            <b-form-select v-model="selectedModelId" :options="modelOptions" :values="modelOptions" id="modelDropdown" class="form-select"></b-form-select>
+          <div class="d-flex align-items-center my-3">
+            <label for="newMacAddress" class="col-form-label">Adresse MAC de l'appareil (unique pour chaque appareil) :</label>
+            <input type="text" id="newMacAddress" v-model="MacAddress" class="form-control">
           </div>
+
+          <div class="d-flex align-items-center my-3">
+            <div class="mr-3">
+              <label for="stateDropdown" class="col-form-label">État de l'appareil (optionnel, par défaut à "stock") :</label>
+            </div>
+
+            <div class="flex-grow-1">
+              <b-form-select v-model="selectedState" :options="stateCycle" id="stateDropdown" class="form-select"></b-form-select>
+            </div>
+          </div>
+
+          <b-button @click="addDevice" variant="success">Ajouter</b-button>
         </div>
+      </b-collapse>
+    </div>
 
-        <div class="d-flex align-items-center my-3">
-          <label for="newMacAddress" class="col-form-label">Adresse MAC de l'appareil (unique pour chaque appareil) :</label>
-          <input type="text" id="newMacAddress" v-model="MacAddress" class="form-control">
-        </div>
+    <div>
+      <b-button @click="toggleConnectDevices" variant="warning" class="my-2">Connecter des appareils</b-button>
 
-        <div class="d-flex align-items-center my-3">
-          <div class="mr-3">
-            <label for="stateDropdown" class="col-form-label">État de l'appareil (optionnel, par défaut à "stock") :</label>
+      <b-collapse v-model="isConnectDeviceOpen">
+        <div class="p-3 my-4 border rounded">
+          <div class="container">
+            <div class="row">
+              <div class="col">
+                MAC Enfant (appareil qui va se connecter)
+              </div>
+              <div class="col">
+                MAC Parent (appareil qui va recevoir la connexion)
+              </div>
+            </div>
+            <div class="row">
+              <div class="col">
+                Date début
+              </div>
+              <div class="col">
+                Date fin (optionnelle)
+              </div>
+            </div>
           </div>
 
-          <div class="flex-grow-1">
-            <b-form-select v-model="selectedState" :options="stateCycle" id="stateDropdown" class="form-select"></b-form-select>
-          </div>
+          <b-button @click="connectDevices" variant="success">Connecter</b-button>
         </div>
-
-        <b-button @click="addDevice" variant="success">Ajouter</b-button>
-      </div>
-    </b-collapse>
+      </b-collapse>
+    </div>
 
     <div class="d-flex flex-column">
       <div class="d-flex align-items-center my-2">
@@ -81,7 +112,6 @@
           <div class="col-md">
             <div class="d-flex flex-column">
               <b-button @click="changeState(appareil)" variant="secondary" class="my-1 col-5 ml-auto">Changer état</b-button>
-              <b-button v-if="appareil.etat === 'installé'" variant="info" class="my-1 col-5 ml-auto">Connecter</b-button>
               <b-button @click="deleteAppareil(appareil.id_appareil)" variant="danger" class="my-1 col-5 ml-auto">Supprimer</b-button>
           </div>
           </div>
@@ -117,6 +147,7 @@ export default defineComponent({
       MacAddress: null,
       stateCycle: ['stock', 'installé', 'maintenance'] as string[],
       selectedState: null,
+      isConnectDeviceOpen: false,
     };
   },
   computed: {
@@ -250,6 +281,17 @@ export default defineComponent({
       }
     },
 
+
+    toggleConnectDevices() {
+      this.isConnectDeviceOpen = !this.isConnectDeviceOpen;
+      if (this.isConnectDeviceOpen) {
+        // fetch les appareils installés
+      }
+    },
+
+    async connectDevices() {
+
+    },
 
   },
 });
