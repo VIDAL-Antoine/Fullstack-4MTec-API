@@ -17,13 +17,13 @@
         </div>
 
         <div class="d-flex align-items-center my-3">
-          <label for="newMacAddress" class="col-form-label">Adresse MAC de l'appareil :</label>
+          <label for="newMacAddress" class="col-form-label">Adresse MAC de l'appareil (unique pour chaque appareil) :</label>
           <input type="text" id="newMacAddress" v-model="MacAddress" class="form-control">
         </div>
 
         <div class="d-flex align-items-center my-3">
           <div class="mr-3">
-            <label for="stateDropdown" class="col-form-label">État de l'appareil :</label>
+            <label for="stateDropdown" class="col-form-label">État de l'appareil (optionnel, par défaut à "stock") :</label>
           </div>
 
           <div class="flex-grow-1">
@@ -71,7 +71,7 @@
               <strong>Type:</strong> {{ appareil.modele && appareil.modele.type ? appareil.modele.type.nomType : 'N/A' }}
             </div>
             <div>
-              <strong>MAC Address:</strong> {{ appareil.mac_address }}
+              <strong>Adresse MAC:</strong> {{ appareil.mac_address }}
             </div>
             <div>
               <strong>État:</strong> {{ appareil.etat }}
@@ -80,9 +80,9 @@
 
           <div class="col-md">
             <div class="d-flex flex-column">
-              <b-button @click="changeState(appareil)" variant="secondary" class="my-1 col-6 ml-auto">Changer état</b-button>
-              <b-button v-if="appareil.etat === 'installé'" variant="info" class="my-1 col-6 ml-auto">Connecter</b-button>
-              <b-button @click="deleteAppareil(appareil.id_appareil)" variant="danger" class="my-1 col-6 ml-auto">Supprimer</b-button>
+              <b-button @click="changeState(appareil)" variant="secondary" class="my-1 col-5 ml-auto">Changer état</b-button>
+              <b-button v-if="appareil.etat === 'installé'" variant="info" class="my-1 col-5 ml-auto">Connecter</b-button>
+              <b-button @click="deleteAppareil(appareil.id_appareil)" variant="danger" class="my-1 col-5 ml-auto">Supprimer</b-button>
           </div>
           </div>
         </div>
