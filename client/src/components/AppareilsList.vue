@@ -231,7 +231,7 @@ export default defineComponent({
         const response = await axios.post(`${API_BASE_URL}/appareils`, {
           id_modele: selectedModelId,
           mac_address: MacAddress,
-          etat: selectedState,
+          etat: selectedState === null ? "stock" : selectedState,
         });
 
         const addedDeviceId = response.data.id_appareil;
