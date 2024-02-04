@@ -38,7 +38,7 @@
     </div>
 
     <div>
-      <b-button @click="toggleConnectDevices" variant="warning" class="my-2">Connecter des appareils</b-button>
+      <b-button @click="toggleConnectDevices" variant="warning" class="my-2">Connecter des appareils (installés)</b-button>
 
       <b-collapse v-model="isConnectDeviceOpen">
         <div class="p-3 my-4 border rounded">
@@ -46,11 +46,11 @@
             <div class="row my-3">
               <div class="col">
                 <label for="childMACDropdown">Adresse MAC Enfant (qui va se connecter):</label>
-                <b-form-select v-model="selectedParentMAC" :options="parentMACAddresses" id="parentMACDropdown" class="form-select"></b-form-select>
+                <b-form-select v-model="selectedChildMAC" :options="childMACAddresses" id="childMACDropdown" class="form-select"></b-form-select>
               </div>
               <div class="col">
                 <label for="parentMACDropdown">Adresse MAC Parent (qui reçoit la connexion):</label>
-                <b-form-select v-model="selectedChildMAC" :options="childMACAddresses" id="childMACDropdown" class="form-select"></b-form-select>
+                <b-form-select v-model="selectedParentMAC" :options="parentMACAddresses" id="parentMACDropdown" class="form-select"></b-form-select>
               </div>
             </div>
             <div class="row my-3">
@@ -116,7 +116,7 @@
               <strong>Est connecté à :</strong>
               <ul>
                 <li v-for="connexion in getParentConnexions(appareil.id_appareil)" :key="connexion.id_connexion">
-                  Appareil {{ connexion.id_appareil_parent }} ← Appareil {{ connexion.id_appareil_enfant }} ({{ connexion.datedebut }} → {{ connexion.datefin || "∞"}})
+                  Appareil {{ connexion.id_appareil_enfant }} → Appareil {{ connexion.id_appareil_parent }} ({{ connexion.datedebut }} → {{ connexion.datefin === '9999-12-31' ? '∞' : connexion.datefin }})
                 </li>
               </ul>
             </div>
@@ -130,7 +130,7 @@
                 <strong>Se connecte à (unique sur une période de temps !) :</strong>
                 <ul>
                     <li v-for="connexion in getChildConnexion(appareil.id_appareil)" :key="connexion.id_connexion">
-                      Appareil {{ connexion.id_appareil_enfant }} → Appareil {{ connexion.id_appareil_parent }} ({{ connexion.datedebut }} → {{ connexion.datefin || "∞"}})
+                      Appareil {{ connexion.id_appareil_enfant }} → Appareil {{ connexion.id_appareil_parent }} ({{ connexion.datedebut }} → {{ connexion.datefin === '9999-12-31' ? '∞' : connexion.datefin }})
                     </li>
                 </ul>
               </div>
@@ -259,6 +259,8 @@ export default defineComponent({
 
       try {
         appareil.etat = nextState;
+        this.isConnectDeviceOpen = false;
+        this.isAddDeviceOpen = false;
         await axios.put(`${API_BASE_URL}/appareils/${appareil.id_appareil}`, {
           etat: nextState,
         });
@@ -271,7 +273,9 @@ export default defineComponent({
       try {
         await axios.delete(`${API_BASE_URL}/appareils/${idAppareil}`);
         this.appareils = this.appareils.filter(appareil => appareil.id_appareil !== idAppareil);
-        console.log('Appareil deleted successfully');
+        this.isConnectDeviceOpen = false;
+        this.isAddDeviceOpen = false;
+        alert("Appareil supprimé avec succès.")
       } catch (error) {
         console.error('Error deleting appareil:', error);
       }
@@ -300,6 +304,16 @@ export default defineComponent({
       try {
         const { selectedModelId, MacAddress, selectedState } = this;
 
+        if (!selectedModelId) {
+          alert("Vérifiez que vous avez sélectionné un modèle.");
+          return;
+        }
+
+        if (!MacAddress) {
+          alert("Vérifiez que l'adresse MAC n'est pas vide.");
+          return;
+        }
+
         const existingDevice = this.appareils.find(appareil => appareil.mac_address.toLowerCase() === MacAddress.toLowerCase());
         if (existingDevice) {
           alert("L'adresse MAC est déjà utilisée. Veuillez saisir une adresse MAC unique.");
@@ -322,9 +336,12 @@ export default defineComponent({
         this.selectedModelId = 0;
         this.MacAddress = '';
         this.selectedState = null;
+        this.isConnectDeviceOpen = false;
         this.isAddDeviceOpen = false;
+        alert("Appareil ajouté avec succès!");
       } catch (error) {
         console.error('Error adding device:', error);
+        alert("Une erreur s'est produite lors de la création de l'appareil. Veuillez réessayer.");
       }
     },
 
@@ -339,13 +356,15 @@ export default defineComponent({
     async loadMACAddresses() {
       try {
         const response = await axios.get(`${API_BASE_URL}/appareils`);
-        const macAddresses = response.data.map((appareil: { mac_address: string; id_appareil: number; }) => ({
-          value: appareil.mac_address,
-          text: appareil.mac_address,
-          id: appareil.id_appareil,
-        }));
-        this.parentMACAddresses = [...macAddresses];
-        this.childMACAddresses = [...macAddresses];
+        const installedMACAddresses = response.data
+          .filter((appareil: { etat: string }) => appareil.etat === "installé")
+          .map((appareil: { mac_address: string; id_appareil: number; }) => ({
+            value: appareil.mac_address,
+            text: appareil.mac_address,
+            id: appareil.id_appareil,
+          }));
+        this.parentMACAddresses = [...installedMACAddresses];
+        this.childMACAddresses = [...installedMACAddresses];
       } catch (error) {
         console.error('Error loading MAC addresses:', error);
       }
@@ -354,7 +373,7 @@ export default defineComponent({
     async connectDevices() {
       const { selectedParentMAC, selectedChildMAC, startDate, endDate } = this;
       let formattedStartDate = null;
-      let formattedEndDate = null;
+      let formattedEndDate = endDate === null ? '9999-12-31' : endDate;
 
       if (startDate) {
         const componentsStartDate = startDate?.toLocaleDateString().split("/");
@@ -384,15 +403,27 @@ export default defineComponent({
       const parentAppareil = this.appareils.find(appareil => appareil.mac_address === selectedParentMAC);
       const childAppareil = this.appareils.find(appareil => appareil.mac_address === selectedChildMAC);
 
-      console.log('Enfant:', parentAppareil?.id_appareil, parentAppareil?.mac_address);
-      console.log('Parent:', childAppareil?.id_appareil, childAppareil?.mac_address);
-      console.log('Date début:', formattedStartDate);
-      console.log('Date fin:', formattedEndDate);
-
       try {
-        // TODO: Envoyer au backend
+        await axios.post(`${API_BASE_URL}/connexions`, {
+          id_appareil_parent: parentAppareil?.id_appareil,
+          id_appareil_enfant: childAppareil?.id_appareil,
+          datedebut: formattedStartDate,
+          datefin: formattedEndDate,
+        });
+
+        const response = await axios.get(`${API_BASE_URL}/connexions`);
+        this.connexions = response.data;
+
+        this.selectedParentMAC = null;
+        this.selectedChildMAC = null;
+        this.startDate = new Date();
+        this.endDate = null;
+        this.isConnectDeviceOpen = false;
+        this.isAddDeviceOpen = false;
+        alert("Appareils connectés avec succès!");
       } catch (error) {
-        console.error('Error connecting devices:', error);
+        console.error('Erreur lors de la connexion des appareils:', error);
+        alert("Une erreur s'est produite lors de la connexion des appareils. Veuillez réessayer en vérifiant que les dates ne se chevauchent pas pour l'appareil enfant.");
       }
     },
 
@@ -411,7 +442,7 @@ export default defineComponent({
 
 <style scoped>
 .container {
-  max-width: 880px;
+  max-width: 900px;
   margin: auto;
 }
 

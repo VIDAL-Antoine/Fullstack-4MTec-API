@@ -22,16 +22,7 @@ router.get('/', async (req: Request, res: Response) => {
 
     if (req.query.dateFin || req.query.datefin) {
         const dateFin = req.query.dateFin || req.query.datefin;
-        filterOptions.datefin = { 
-            [Op.or]: [
-                { [Op.lte]: dateFin },
-                { [Op.is]: null },
-            ],
-        };
-    }
-
-    if (req.query.datefin === 'undefined' || req.query.datefin === 'none') {
-        filterOptions.datefin = { [Op.is]: null };
+        filterOptions.datefin = { [Op.lte]: dateFin };
     }
 
     try {
@@ -66,8 +57,23 @@ router.get('/:id', async (req: Request, res: Response) => {
 
 router.post('/', async (req: Request, res: Response) => {
   const { id_appareil_parent, id_appareil_enfant, datedebut, datefin } = req.body;
+
   try {
-    const newConnexion = await Connexion.create({ id_appareil_parent, id_appareil_enfant, datedebut, datefin});
+    const existingConnexions = await Connexion.findAll({
+      where: {
+        id_appareil_enfant,
+        [Op.and]: {
+            datedebut: { [Op.lte]: datefin },
+            datefin: { [Op.gte]: datedebut }
+        },
+      },
+    });
+
+    if (existingConnexions.length > 0) {
+      return res.status(400).json({ error: "Les dates se chevauchent pour l'appareil enfant." });
+    }
+
+    const newConnexion = await Connexion.create({ id_appareil_parent, id_appareil_enfant, datedebut, datefin });
     res.status(201).json(newConnexion);
   } catch (error) {
     console.error(error);
