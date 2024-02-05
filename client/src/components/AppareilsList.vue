@@ -431,8 +431,8 @@ export default defineComponent({
         appareil.etat = nextState;
 
         if (currentState === 'installé' && nextState !== 'installé') {
-          await (this as any).disconnectDevices(appareil.id_appareil, true); // Parent
-          await (this as any).disconnectDevices(appareil.id_appareil, false); // Enfant
+          await this.disconnectDevices(appareil.id_appareil, true); // Parent
+          await this.disconnectDevices(appareil.id_appareil, false); // Enfant
 
           const response = await axios.get(`${API_BASE_URL}/connexions`);
           this.connexions = response.data.map((connexion: Connexion) => ({
