@@ -2,6 +2,7 @@
   <div class="container">
     <h1 class="display-2 text-center my-4">Appareils</h1>
 
+    <!-- Page ajouter un appareil -->
     <div>
       <v-btn @click="toggleAddDevice" color="primary" class="my-2">{{ isAddDeviceOpen ? 'Fermer' : 'Ajouter un appareil' }}</v-btn>
 
@@ -15,6 +16,7 @@
       </b-collapse>
     </div>
 
+    <!-- Page connecter des appareils -->
     <div>
       <v-btn @click="toggleConnectDevices" color="secondary" class="my-2">{{ isConnectDeviceOpen ? 'Fermer' : 'Connecter des appareils (installés)' }}</v-btn>
 
@@ -30,11 +32,11 @@
             </v-row>
             <v-row>
               <v-col>
-                <label for="start-date">Date de début :</label>
+                <!-- <label for="start-date">Date de début :</label> -->
                 <v-date-picker elevation="5" v-model="startDate" style="width: 300px;"></v-date-picker>
               </v-col>
             <v-col>
-              <label for="end-date">Date de fin (optionnelle) :</label>
+              <!-- <label for="end-date">Date de fin (optionnelle) :</label> -->
               <v-date-picker elevation="5" v-model="endDate" style="width: 300px;"></v-date-picker>
               <v-btn color="primary" @click="endDate = null" class="m-3">Réinitialiser la date de fin</v-btn>
             </v-col>
@@ -45,6 +47,7 @@
       </b-collapse>
     </div>
 
+    <!-- Page Liste des appareils et connexions -->
     <div>
       <v-text-field v-model="modelNameFilter" label="Filtrer par nom de Modèle" @input="applyFilters" class="mx-4"></v-text-field>
       <v-text-field v-model="typeNameFilter" label="Filtrer nom de Type" @input="applyFilters" class="mx-4"></v-text-field>
@@ -181,6 +184,7 @@ export default defineComponent({
         ...connexion,
         datefin: connexion.datefin === '9999-12-31' ? '∞' : connexion.datefin,
       }));
+      this.connexions.sort((a, b) => a.id_connexion - b.id_connexion);
     } catch (error) {
       console.error('Error fetching appareils:', error);
     }
@@ -201,23 +205,6 @@ export default defineComponent({
         this.appareils.sort((a, b) => a.id_appareil - b.id_appareil);
       } catch (error) {
         console.error('Error fetching filtered appareils:', error);
-      }
-    },
-
-    async changeState(appareil: Appareil) {
-      const currentState = appareil.etat;
-      const currentIndex = this.stateCycle.indexOf(currentState);
-      const nextState = this.stateCycle[(currentIndex + 1) % this.stateCycle.length];
-
-      try {
-        appareil.etat = nextState;
-        this.isConnectDeviceOpen = false;
-        this.isAddDeviceOpen = false;
-        await axios.put(`${API_BASE_URL}/appareils/${appareil.id_appareil}`, {
-          etat: nextState,
-        });
-      } catch (error) {
-        console.error('Error changing etat appareil:', error);
       }
     },
 
@@ -359,7 +346,12 @@ export default defineComponent({
         });
 
         const response = await axios.get(`${API_BASE_URL}/connexions`);
-        this.connexions = response.data;
+        this.connexions = response.data.map((connexion: Connexion) => ({
+          ...connexion,
+          datefin: connexion.datefin === '9999-12-31' ? '∞' : connexion.datefin,
+        }));
+        this.connexions.sort((a, b) => a.id_connexion - b.id_connexion);
+
 
         this.selectedParentMAC = null;
         this.selectedChildMAC = null;
@@ -375,11 +367,88 @@ export default defineComponent({
     },
 
     getParentConnexions(appareilId: number) {
-      return this.connexions.filter(connexion => connexion.id_appareil_parent === appareilId);
+      const now = new Date().toLocaleDateString().split("/");
+      const formattednowDate = now[2] + "-" + now[1].padStart(2, '0') + "-" + now[0].padStart(2, '0');
+
+      const parentConnexions = this.connexions.filter(connexion => {
+        return (
+          connexion.id_appareil_parent === appareilId &&
+          (connexion.datefin >= formattednowDate)
+        );
+      });
+
+      return parentConnexions;
     },
 
-    getChildConnexion(appareilId: number) {
-      return this.connexions.filter(connexion => connexion.id_appareil_enfant === appareilId);
+      getChildConnexions(appareilId: number) {
+        const now = new Date().toLocaleDateString().split("/");
+        const formattednowDate = now[2] + "-" + now[1].padStart(2, '0') + "-" + now[0].padStart(2, '0');
+
+        const parentConnexions = this.connexions.filter(connexion => {
+          return (
+            connexion.id_appareil_enfant === appareilId &&
+            (connexion.datefin >= formattednowDate)
+          );
+        });
+
+        return parentConnexions;
+      },
+
+    async disconnectDevices(appareilId: number, isParent: boolean) {
+      const now = new Date().toLocaleDateString().split("/");
+      const formattedNowDate = now[2] + "-" + now[1].padStart(2, '0') + "-" + now[0].padStart(2, '0');
+
+      try {
+        if (isParent) {
+          const parentConnexions = this.getParentConnexions(appareilId);
+          for (const connexion of parentConnexions) {
+            await axios.put(`${API_BASE_URL}/connexions/${connexion.id_connexion}`, {
+              datefin: formattedNowDate,
+            });
+          }
+        } else {
+          const childConnexions = this.getChildConnexions(appareilId);
+          for (const connexion of childConnexions) {
+            await axios.put(`${API_BASE_URL}/connexions/${connexion.id_connexion}`, {
+              datefin: formattedNowDate,
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Erreur lors de la déconnexion des appareils:', error);
+        alert("Une erreur s'est produite lors de la déconnexion des appareils. Veuillez réessayer.");
+      }
+    },
+
+    async changeState(appareil: Appareil) {
+      const currentState = appareil.etat;
+      const currentIndex = this.stateCycle.indexOf(currentState);
+      const nextState = this.stateCycle[(currentIndex + 1) % this.stateCycle.length];
+
+      try {
+        appareil.etat = nextState;
+
+        if (currentState === 'installé' && nextState !== 'installé') {
+          await (this as any).disconnectDevices(appareil.id_appareil, true); // Parent
+          await (this as any).disconnectDevices(appareil.id_appareil, false); // Enfant
+
+          const response = await axios.get(`${API_BASE_URL}/connexions`);
+          this.connexions = response.data.map((connexion: Connexion) => ({
+            ...connexion,
+            datefin: connexion.datefin === '9999-12-31' ? '∞' : connexion.datefin,
+          }));
+          this.connexions.sort((a, b) => a.id_connexion - b.id_connexion);
+          alert("Connexions déconnectées avec succès !");
+        }
+
+        this.isConnectDeviceOpen = false;
+        this.isAddDeviceOpen = false;
+        await axios.put(`${API_BASE_URL}/appareils/${appareil.id_appareil}`, {
+          etat: nextState,
+        });
+      } catch (error) {
+        console.error('Error changing etat appareil:', error);
+      }
     },
   },
 });
