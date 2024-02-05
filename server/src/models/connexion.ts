@@ -6,7 +6,7 @@ class Connexion extends Model {
   public id_appareil_parent!: number;
   public id_appareil_enfant!: number;
   public datedebut!: DateOnlyDataType;
-  public datefin?: DateOnlyDataType;
+  public datefin!: DateOnlyDataType;
 }
 
 export const initConnexionModel = (sequelize: Sequelize) => {

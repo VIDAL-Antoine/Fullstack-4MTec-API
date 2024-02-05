@@ -3,142 +3,74 @@
     <h1 class="display-2 text-center my-4">Appareils</h1>
 
     <div>
-      <b-button @click="toggleAddDevice" variant="primary" class="my-2">{{ isAddDeviceOpen ? 'Fermer' : 'Ajouter un appareil' }}</b-button>
+      <v-btn @click="toggleAddDevice" color="primary" class="my-2">{{ isAddDeviceOpen ? 'Fermer' : 'Ajouter un appareil' }}</v-btn>
 
       <b-collapse v-model="isAddDeviceOpen">
         <div class="p-3 my-4 border rounded">
-          <div class="d-flex align-items-center my-3">
-            <div class="mr-3">
-              <label for="modelDropdown" class="col-form-label">Modèle d'appareil :</label>
-            </div>
-
-            <div class="flex-grow-1">
-              <b-form-select v-model="selectedModelId" :options="modelOptions" :values="modelOptions" id="modelDropdown" class="form-select"></b-form-select>
-            </div>
-          </div>
-
-          <div class="d-flex align-items-center my-3">
-            <label for="newMacAddress" class="col-form-label">Adresse MAC de l'appareil (unique pour chaque appareil) :</label>
-            <input type="text" id="newMacAddress" v-model="MacAddress" class="form-control">
-          </div>
-
-          <div class="d-flex align-items-center my-3">
-            <div class="mr-3">
-              <label for="stateDropdown" class="col-form-label">État de l'appareil (optionnel, par défaut à "stock") :</label>
-            </div>
-
-            <div class="flex-grow-1">
-              <b-form-select v-model="selectedState" :options="stateCycle" id="stateDropdown" class="form-select"></b-form-select>
-            </div>
-          </div>
-
-          <b-button @click="addDevice" variant="success">Ajouter</b-button>
+          <v-select v-model="selectedModelId" :items="modelOptions" :values="modelOptions" label="Nom de Modèle" class="mx-4"></v-select>
+          <v-text-field v-model="MacAddress" label="Adresse MAC" class="mx-4"></v-text-field>
+          <v-select v-model="selectedState" :items="stateCycle" label="État de l'appareil (optionnel, par défaut à stock)" class="mx-4"></v-select>
+          <v-btn @click="addDevice" color="green" class="m-3">Ajouter</v-btn>
         </div>
       </b-collapse>
     </div>
 
     <div>
-      <b-button @click="toggleConnectDevices" variant="warning" class="my-2">Connecter des appareils (installés)</b-button>
+      <v-btn @click="toggleConnectDevices" color="secondary" class="my-2">{{ isConnectDeviceOpen ? 'Fermer' : 'Connecter des appareils (installés)' }}</v-btn>
 
       <b-collapse v-model="isConnectDeviceOpen">
-        <div class="p-3 my-4 border rounded">
-          <div class="container">
-            <div class="row my-3">
-              <div class="col">
-                <label for="childMACDropdown">Adresse MAC Enfant (qui va se connecter):</label>
-                <b-form-select v-model="selectedChildMAC" :options="childMACAddresses" id="childMACDropdown" class="form-select"></b-form-select>
-              </div>
-              <div class="col">
-                <label for="parentMACDropdown">Adresse MAC Parent (qui reçoit la connexion):</label>
-                <b-form-select v-model="selectedParentMAC" :options="parentMACAddresses" id="parentMACDropdown" class="form-select"></b-form-select>
-              </div>
-            </div>
-            <div class="row my-3">
-              <div class="col">
-                <label for="startDatePicker">Date de début:</label>
-                <b-form-datepicker v-model="startDate" id="startDatePicker" class="mb-2" value-as-date></b-form-datepicker>
-              </div>
-              <div class="col">
-                <label for="endDatePicker">Date de fin (optionnelle):</label>
-                <b-form-datepicker v-model="endDate" id="endDatePicker" class="mb-2" reset-button value-as-date></b-form-datepicker>
-              </div>
-            </div>
-          </div>
+        <div class="p-3 my-3 border rounded">
+          <v-row>
+            <v-col>
+                <v-select v-model="selectedChildMAC" :items="childMACAddresses" label="Adresse MAC Enfant (qui va se connecter)" class="mx-4"></v-select>
+            </v-col>
+            <v-col>
+                <v-select v-model="selectedParentMAC" :items="parentMACAddresses" label="Adresse MAC Parent (qui reçoit la connexion)" class="mx-4"></v-select>
+            </v-col>
+            </v-row>
+            <v-row>
+              <v-col>
+                <label for="start-date">Date de début :</label>
+                <v-date-picker elevation="5" v-model="startDate" style="width: 300px;"></v-date-picker>
+              </v-col>
+            <v-col>
+              <label for="end-date">Date de fin (optionnelle) :</label>
+              <v-date-picker elevation="5" v-model="endDate" style="width: 300px;"></v-date-picker>
+              <v-btn color="primary" @click="endDate = null" class="m-3">Réinitialiser la date de fin</v-btn>
+            </v-col>
+          </v-row>
 
-          <b-button @click="connectDevices" variant="success">Connecter</b-button>
+          <v-btn @click="connectDevices" color="green" class="m-2">Connecter</v-btn>
         </div>
       </b-collapse>
     </div>
 
-    <div class="d-flex flex-column">
-      <div class="d-flex align-items-center my-2">
-        <label for="typeNameFilter">Filtrer par nom de type : </label>
-        <input v-model="typeNameFilter" type="text" id="typeNameFilter" class="form-control" />
-      </div>
+    <div>
+      <v-text-field v-model="modelNameFilter" label="Filtrer par nom de Modèle" @input="applyFilters" class="mx-4"></v-text-field>
+      <v-text-field v-model="typeNameFilter" label="Filtrer nom de Type" @input="applyFilters" class="mx-4"></v-text-field>
+      <v-text-field v-model="macAddressFilter" label="Filtrer par adressse MAC" @input="applyFilters" class="mx-4"></v-text-field>
+      <v-select v-model="etatFilter" label="Filtrer par État" :items="[ {text: 'tous', value: ''}, ...stateCycle ]" @input="applyFilters" read-only class="mx-4"></v-select>
 
-      <div class="d-flex align-items-center my-2">
-        <label for="modelNameFilter">Filtrer par nom de modèle : </label>
-        <input v-model="modelNameFilter" type="text" id="modelNameFilter" class="form-control" />
-      </div>
-
-      <div class="d-flex align-items-center my-2">
-        <label for="macAddressFilter">Filtrer par adresse MAC : </label>
-        <input v-model="macAddressFilter" type="text" id="macAddressFilter" class="form-control" />
-      </div>
-
-      <div class="d-flex align-items-center my-2">
-        <label for="etatFilter">Filtrer par état : </label>
-        <input v-model="etatFilter" type="text" id="etatFilter" class="form-control" />
-      </div>
+      <v-data-table :headers="appareilsHeaders" :items="filteredAppareils">
+        <template #item="{ item }">
+          <tr>
+            <td>{{ item.id_appareil }}</td>
+            <td>{{ item.modele ? item.modele.nomModele : 'N/A' }}</td>
+            <td>{{ item.modele && item.modele.type ? item.modele.type.nomType : 'N/A' }}</td>
+            <td>{{ item.mac_address }}</td>
+            <td>{{ item.etat }}</td>
+            <td>
+              <v-btn @click="changeState(item)" color="blue" class="my-1">Changer état</v-btn>
+            </td>
+            <td>
+              <v-btn @click="deleteAppareil(item.id_appareil)" color="red" class="my-1">Supprimer</v-btn>
+            </td>
+          </tr>
+        </template>
+      </v-data-table>
     </div>
-
-    <ul class="appareils-list my-5">
-      <li v-for="appareil in filteredAppareils" :key="appareil.id_appareil" class="appareils-list">
-        <div class="row border rounded px-1 py-3 my-3 mx-0">
-          <div class="col-md-6">
-            <div>
-              <strong>ID:</strong> {{ appareil.id_appareil }}
-            </div>
-            <div>
-              <strong>Modèle:</strong> {{ appareil.modele ? appareil.modele.nomModele : 'N/A' }}
-            </div>
-            <div>
-              <strong>Type:</strong> {{ appareil.modele && appareil.modele.type ? appareil.modele.type.nomType : 'N/A' }}
-            </div>
-            <div>
-              <strong>Adresse MAC:</strong> {{ appareil.mac_address }}
-            </div>
-            <div>
-              <strong>État:</strong> {{ appareil.etat }}
-            </div>
-
-            <div class="mt-3">
-              <strong>Est connecté à :</strong>
-              <ul>
-                <li v-for="connexion in getParentConnexions(appareil.id_appareil)" :key="connexion.id_connexion">
-                  Appareil {{ connexion.id_appareil_enfant }} → Appareil {{ connexion.id_appareil_parent }} ({{ connexion.datedebut }} → {{ connexion.datefin === '9999-12-31' ? '∞' : connexion.datefin }})
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <div class="col-md-6">
-            <div class="d-flex flex-column">
-              <b-button @click="changeState(appareil)" variant="secondary" class="my-1 ml-auto">Changer état</b-button>
-              <b-button @click="deleteAppareil(appareil.id_appareil)" variant="danger" class="my-1 ml-auto">Supprimer</b-button>
-              <div class="mt-10">
-                <strong>Se connecte à (unique sur une période de temps !) :</strong>
-                <ul>
-                    <li v-for="connexion in getChildConnexion(appareil.id_appareil)" :key="connexion.id_connexion">
-                      Appareil {{ connexion.id_appareil_enfant }} → Appareil {{ connexion.id_appareil_parent }} ({{ connexion.datedebut }} → {{ connexion.datefin === '9999-12-31' ? '∞' : connexion.datefin }})
-                    </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-      </li>
-    </ul>
+  
+    <v-data-table :headers="connexionHeaders" :items="connexions"></v-data-table>
   </div>
 </template>
 
@@ -159,7 +91,7 @@ interface Connexion {
   id_appareil_parent: number;
   id_appareil_enfant: number;
   datedebut: string;
-  datefin?: string | null;
+  datefin: string;
 }
 
 
@@ -183,8 +115,24 @@ export default defineComponent({
       childMACAddresses: [] as { value: number, text: string; }[],
       selectedParentMAC: null,
       selectedChildMAC: null,
-      startDate: new Date(),
+      startDate: null as Date | null,
       endDate: null as Date | null,
+      appareilsHeaders: [
+        { text: 'ID Appareil', value: 'id_appareil' },
+        { text: 'Nom Modèle', value: 'modele.nomModele' },
+        { text: 'Nom Type', value: 'modele.type.nomType' },
+        { text: 'Adresse MAC', value: 'mac_address' },
+        { text: 'État', value: 'etat' },
+        { text: 'Changer l\'état de l\'appareil' },
+        { text: 'Supprimer l\'appareil' },
+      ],
+      connexionHeaders: [
+        { text: 'ID Connexion', value: 'id_connexion' },
+        { text: 'ID Appareil Enfant', value: 'id_appareil_enfant' },
+        { text: 'ID Appareil Parent', value: 'id_appareil_parent' },
+        { text: 'Date de Début', value: 'datedebut' },
+        { text: 'Date de Fin', value: 'datefin' },
+      ],
     };
   },
   computed: {
@@ -229,7 +177,10 @@ export default defineComponent({
       this.appareils.sort((a, b) => a.id_appareil - b.id_appareil);
 
       const connexionsResponse = await axios.get(`${API_BASE_URL}/connexions`);
-      this.connexions = connexionsResponse.data;
+      this.connexions = connexionsResponse.data.map((connexion: Connexion) => ({
+        ...connexion,
+        datefin: connexion.datefin === '9999-12-31' ? '∞' : connexion.datefin,
+      }));
     } catch (error) {
       console.error('Error fetching appareils:', error);
     }
@@ -247,6 +198,7 @@ export default defineComponent({
         });
 
         this.appareils = response.data;
+        this.appareils.sort((a, b) => a.id_appareil - b.id_appareil);
       } catch (error) {
         console.error('Error fetching filtered appareils:', error);
       }
@@ -273,6 +225,7 @@ export default defineComponent({
       try {
         await axios.delete(`${API_BASE_URL}/appareils/${idAppareil}`);
         this.appareils = this.appareils.filter(appareil => appareil.id_appareil !== idAppareil);
+        this.appareils.sort((a, b) => a.id_appareil - b.id_appareil);
         this.isConnectDeviceOpen = false;
         this.isAddDeviceOpen = false;
         alert("Appareil supprimé avec succès.")
@@ -331,7 +284,7 @@ export default defineComponent({
 
         const updatedAppareil = addedDeviceResponse.data;
         this.appareils.push(updatedAppareil);
-
+        this.appareils.sort((a, b) => a.id_appareil - b.id_appareil);
 
         this.selectedModelId = 0;
         this.MacAddress = '';
@@ -372,17 +325,11 @@ export default defineComponent({
 
     async connectDevices() {
       const { selectedParentMAC, selectedChildMAC, startDate, endDate } = this;
-      let formattedStartDate = null;
       let formattedEndDate = endDate === null ? '9999-12-31' : endDate;
 
-      if (startDate) {
-        const componentsStartDate = startDate?.toLocaleDateString().split("/");
-        formattedStartDate = componentsStartDate[2] + "-" + componentsStartDate[1].padStart(2, '0') + "-" + componentsStartDate[0].padStart(2, '0');
-      }
-
-      if (endDate) {
-        const componentsEndDate = endDate?.toLocaleDateString().split("/");
-        formattedEndDate = componentsEndDate[2] + "-" + componentsEndDate[1].padStart(2, '0') + "-" + componentsEndDate[0].padStart(2, '0');
+      if (!startDate) {
+        alert("Veuillez entrer une date de début de connexion.");
+        return;
       }
 
       if (!selectedChildMAC || !selectedParentMAC) {
@@ -395,7 +342,7 @@ export default defineComponent({
         return;
       }
 
-      if (formattedStartDate && formattedEndDate && (formattedStartDate >= formattedEndDate)) {
+      if (startDate >= formattedEndDate) {
         alert("La date de début doit être antérieure à la date de fin.");
         return;
       }
@@ -407,7 +354,7 @@ export default defineComponent({
         await axios.post(`${API_BASE_URL}/connexions`, {
           id_appareil_parent: parentAppareil?.id_appareil,
           id_appareil_enfant: childAppareil?.id_appareil,
-          datedebut: formattedStartDate,
+          datedebut: startDate,
           datefin: formattedEndDate,
         });
 
@@ -416,7 +363,7 @@ export default defineComponent({
 
         this.selectedParentMAC = null;
         this.selectedChildMAC = null;
-        this.startDate = new Date();
+        this.startDate = null;
         this.endDate = null;
         this.isConnectDeviceOpen = false;
         this.isAddDeviceOpen = false;
@@ -434,7 +381,6 @@ export default defineComponent({
     getChildConnexion(appareilId: number) {
       return this.connexions.filter(connexion => connexion.id_appareil_enfant === appareilId);
     },
-
   },
 });
 </script>
@@ -444,15 +390,6 @@ export default defineComponent({
 .container {
   max-width: 900px;
   margin: auto;
-}
-
-ul.appareils-list {
-  list-style: none;
-  padding: 0;
-}
-
-li.appareils-list {
-  margin: 0;
 }
 
 </style>
