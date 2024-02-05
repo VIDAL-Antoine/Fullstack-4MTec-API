@@ -373,7 +373,8 @@ export default defineComponent({
       const parentConnexions = this.connexions.filter(connexion => {
         return (
           connexion.id_appareil_parent === appareilId &&
-          (connexion.datefin >= formattednowDate)
+          (connexion.datefin >= formattednowDate) &&
+          (connexion.datedebut <= formattednowDate)
         );
       });
 
@@ -387,7 +388,8 @@ export default defineComponent({
         const parentConnexions = this.connexions.filter(connexion => {
           return (
             connexion.id_appareil_enfant === appareilId &&
-            (connexion.datefin >= formattednowDate)
+            (connexion.datefin >= formattednowDate) &&
+            (connexion.datedebut <= formattednowDate)
           );
         });
 
