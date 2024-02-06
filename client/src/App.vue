@@ -1,26 +1,23 @@
 <template>
   <v-app>
-    <v-app-bar app color="primary" dark>Application Fullstack 4MTec</v-app-bar>
-
     <v-main>
-      <AppareilsList />
+      <NavBar />
     </v-main>
   </v-app>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
-import AppareilsList from './components/AppareilsList.vue';
+import NavBar from './components/NavBar.vue';
 
 export default Vue.extend({
   name: 'App',
 
   components: {
-    AppareilsList,
+    NavBar
   },
 
   data: () => ({
-    //
   }),
 });
 </script>
