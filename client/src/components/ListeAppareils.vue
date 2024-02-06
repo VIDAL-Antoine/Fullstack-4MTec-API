@@ -1,5 +1,5 @@
 <template>
-    <div class="m-3">
+    <div class="px-10 py-10">
       <v-data-table :headers="appareilsHeaders" :items="filteredAppareils" class="elevation-5">
         <template v-slot:top>
           <v-toolbar flat class="py-5">
@@ -41,15 +41,17 @@
 
       <br>
 
-      <!-- Le tri sur plusieurs colonnes (datefin + datedebut) ne semble pas marcher, à voir plus tard-->
+      <!-- Le tri sur plusieurs colonnes (datefin + datedebut) ne semble pas marcher -->
       <!-- <v-data-table :headers="connexionHeaders" :items="filteredConnexions" :sort-by="['datefin', 'datedebut']" :sort-desc="[true, true]" class="elevation-5">  -->
       <v-data-table :headers="connexionHeaders" :items="filteredConnexions" :sort-by="['datefin']" :sort-desc="[true]" class="elevation-5">
         <template v-slot:top>
           <v-toolbar flat class="py-5">
             <v-toolbar-title>Connexions</v-toolbar-title>
-            <v-text-field v-model="parentIDFilter" label="ID Appareil Parent" append-icon="mdi-magnify" class="mx-4"></v-text-field>
+            <v-divider class="mx-3" inset vertical></v-divider>
             <v-text-field v-model="childIDFilter" label="ID Appareil Enfant" append-icon="mdi-magnify" class="mx-4"></v-text-field>
-
+            <v-text-field v-model="childMACFilter" label="Adresse MAC Enfant" append-icon="mdi-magnify" class="mx-4"></v-text-field>
+            <v-text-field v-model="parentIDFilter" label="ID Appareil Parent" append-icon="mdi-magnify" class="mx-4"></v-text-field>
+            <v-text-field v-model="parentMACFilter" label="Adresse MAC Parent" append-icon="mdi-magnify" class="mx-4"></v-text-field>
 
             <v-spacer></v-spacer>
             <v-dialog v-model="connexionDialog">
@@ -113,6 +115,8 @@ interface Connexion {
   id_appareil_enfant: number;
   datedebut: string;
   datefin: string;
+  appareilParent: { mac_address: string };
+  appareilEnfant: { mac_address: string };
 }
 
 export default defineComponent({
@@ -125,6 +129,8 @@ export default defineComponent({
         etatFilter: '',
         parentIDFilter: '',
         childIDFilter: '',
+        parentMACFilter: '',
+        childMACFilter: '',
         modelOptions: [] as { value: number, text: string; }[],
         selectedModelId: 0,
         MacAddress: '' as string,
@@ -148,7 +154,9 @@ export default defineComponent({
         connexionHeaders: [
             { text: 'ID Connexion', value: 'id_connexion' },
             { text: 'ID Appareil Enfant', value: 'id_appareil_enfant' },
+            { text: 'Adresse MAC Enfant', value: 'appareilEnfant.mac_address' },
             { text: 'ID Appareil Parent', value: 'id_appareil_parent' },
+            { text: 'Adresse MAC Parent', value: 'appareilParent.mac_address' },
             { text: 'Date de Début', value: 'datedebut' },
             { text: 'Date de Fin', value: 'datefin' },
         ],
@@ -207,6 +215,18 @@ export default defineComponent({
           return (
             connexion.id_appareil_enfant && connexion.id_appareil_enfant === Number(this.childIDFilter)
             );
+        });
+      }
+
+      if (this.parentMACFilter) {
+        filtered = filtered.filter((connexion) => {
+          return connexion.appareilParent.mac_address.toLowerCase().startsWith(this.parentMACFilter.toLowerCase());
+        });
+      }
+
+      if (this.childMACFilter) {
+        filtered = filtered.filter((connexion) => {
+          return connexion.appareilEnfant.mac_address.toLowerCase().startsWith(this.childMACFilter.toLowerCase());
         });
       }
 

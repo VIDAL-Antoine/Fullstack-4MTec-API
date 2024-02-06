@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
 import Connexion from '../models/connexion';
 import { Op } from 'sequelize';
+import Appareil from '../models/appareil';
 
 const router = express.Router();
 
@@ -28,6 +29,10 @@ router.get('/', async (req: Request, res: Response) => {
     try {
       const connexions = await Connexion.findAll({
         where: filterOptions,
+        include: [
+          { model: Appareil, as: 'appareilParent' },
+          { model: Appareil, as: 'appareilEnfant' }
+        ]
       });
   
       res.json(connexions);
