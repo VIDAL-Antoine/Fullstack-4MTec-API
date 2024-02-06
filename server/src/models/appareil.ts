@@ -37,6 +37,7 @@ export const initAppareilModel = (sequelize: Sequelize) => {
     {
       sequelize,
       tableName: 'appareils',
+      paranoid: true,
     }
   );
 

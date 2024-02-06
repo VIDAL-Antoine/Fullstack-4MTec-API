@@ -37,6 +37,7 @@ export const initConnexionModel = (sequelize: Sequelize) => {
     {
       sequelize,
       tableName: 'connexions',
+      paranoid: true,
     }
   );
 

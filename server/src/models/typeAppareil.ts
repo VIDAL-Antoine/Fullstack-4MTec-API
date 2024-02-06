@@ -21,6 +21,7 @@ export const initTypeAppareilModel = (sequelize: Sequelize) => {
     {
       sequelize,
       tableName: 'type_appareils',
+      paranoid: true,
     }
   );
 };
