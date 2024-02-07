@@ -1,100 +1,95 @@
 <template>
-    <div class="px-10 py-10">
-      <v-data-table :headers="appareilsHeaders" :items="filteredAppareils" class="elevation-5">
-        <template v-slot:top>
-          <v-toolbar flat class="py-5">
-            <v-toolbar-title>Appareils</v-toolbar-title>
-            <v-divider class="mx-3" inset vertical></v-divider>
-  
-            <v-text-field v-model="modelNameFilter" label="Modèle" append-icon="mdi-magnify" class="mx-4"></v-text-field>
-            <v-text-field v-model="typeNameFilter" label="Type" append-icon="mdi-magnify" class="mx-4"></v-text-field>
-            <v-text-field v-model="macAddressFilter" label="Adresse MAC" append-icon="mdi-magnify" class="mx-4"></v-text-field>
-            <v-select v-model="etatFilter" label="Filtrer par État" :items="[ {text: 'tous', value: ''}, ...stateCycle ]" read-only class="mx-4"></v-select>
-            <v-spacer></v-spacer>
-            <v-dialog v-model="appareilDialog" max-width="500px">
-              <template v-slot:activator="{ on }">
-                <v-btn color="primary" dark class="mb-2" v-on="on">Nouvel Appareil</v-btn>
-              </template>
-              <v-card>
-                <v-card-title><span class="text-h5">Nouvel Appareil</span></v-card-title>
-                <v-card-text>
-                  <v-container>
-                    <v-select v-model="selectedModelId" :items="modelOptions" label="Nom de Modèle" class="m-2"></v-select>
-                    <v-text-field v-model="MacAddress" label="Adresse MAC" class="m-2"></v-text-field>
-                    <v-select v-model="selectedState" :items="stateCycle" label="État de l'appareil (optionnel, par défaut à stock)" class="m-2"></v-select>
-                  </v-container>
-                </v-card-text>
-                <v-card-actions>
-                  <v-spacer></v-spacer>
-                  <v-btn color="blue darken-1" text @click="appareilDialog = false">Annuler</v-btn>
-                  <v-btn color="blue darken-1" text @click="addDevice">Sauvegarder</v-btn>
-                </v-card-actions>
-              </v-card>
-            </v-dialog>
-          </v-toolbar>
-        </template>
-        <template v-slot:[`item.actions`]="{ item }">
-          <v-icon small class="mr-2" @click="changeState(item)">mdi-power-plug</v-icon>
-          <v-icon small @click="deleteAppareil(item.id_appareil)">mdi-delete</v-icon>
-        </template>
-      </v-data-table>
-
-      <br>
-
-      <!-- Le tri sur plusieurs colonnes (datefin + datedebut) ne semble pas marcher -->
-      <!-- <v-data-table :headers="connexionHeaders" :items="filteredConnexions" :sort-by="['datefin', 'datedebut']" :sort-desc="[true, true]" class="elevation-5">  -->
-      <v-data-table :headers="connexionHeaders" :items="filteredConnexions" :sort-by="['datefin']" :sort-desc="[true]" class="elevation-5">
-        <template v-slot:top>
-          <v-toolbar flat class="py-5">
-            <v-toolbar-title>Connexions</v-toolbar-title>
-            <v-divider class="mx-3" inset vertical></v-divider>
-            <v-text-field v-model="childIDFilter" label="ID Appareil Enfant" append-icon="mdi-magnify" class="mx-4"></v-text-field>
-            <v-text-field v-model="childMACFilter" label="Adresse MAC Enfant" append-icon="mdi-magnify" class="mx-4"></v-text-field>
-            <v-text-field v-model="parentIDFilter" label="ID Appareil Parent" append-icon="mdi-magnify" class="mx-4"></v-text-field>
-            <v-text-field v-model="parentMACFilter" label="Adresse MAC Parent" append-icon="mdi-magnify" class="mx-4"></v-text-field>
-
-            <v-spacer></v-spacer>
-            <v-dialog v-model="connexionDialog">
-              <template v-slot:activator="{ on }">
-                <v-btn color="primary" dark class="mb-2" v-on="on">Nouvelle connexion</v-btn>
-              </template>
-              <v-card>
-                <v-card-title><span class="text-h5">Nouvelle Connexion</span></v-card-title>
-                <v-card-text>
-                  <v-container>
-                    <v-row>
-                        <v-col>
-                            <v-select v-model="selectedChildMAC" :items="childMACAddresses" label="Adresse MAC Enfant (qui va se connecter)" class="mx-4"></v-select>
-                        </v-col>
-                        <v-col>
-                            <v-select v-model="selectedParentMAC" :items="parentMACAddresses" label="Adresse MAC Parent (qui reçoit la connexion)" class="mx-4"></v-select>
-                        </v-col>
-                        </v-row>
-                        <v-row>
-                        <v-col>
-                            <v-date-picker v-model="startDate" label="Date de début"></v-date-picker>
-                        </v-col>
-                        <v-col>
-                            <v-date-picker v-model="endDate" label="Date de fin (optionnelle)"></v-date-picker>
-                            <v-btn color="primary" @click="endDate = null" class="m-3">Réinitialiser la date de fin</v-btn>
-                        </v-col>
-                        </v-row>
-                  </v-container>
-                </v-card-text>
-                <v-card-actions>
-                  <v-spacer></v-spacer>
-                  <v-btn color="blue darken-1" text @click="connexionDialog = false">Annuler</v-btn>
-                  <v-btn color="blue darken-1" text @click="connectDevices">Connecter</v-btn>
-                </v-card-actions>
-              </v-card>
-            </v-dialog>
-          </v-toolbar>
+  <div class="px-10 py-10">
+    <v-data-table :headers="appareilsHeaders" :items="filteredAppareils" class="elevation-5">
+      <template v-slot:top>
+        <v-toolbar flat class="py-5">
+          <v-toolbar-title>Appareils</v-toolbar-title>
           <v-divider class="mx-3" inset vertical></v-divider>
-  
-        </template>
-      </v-data-table>
-    </div>
-  </template>
+
+          <v-text-field v-model="modelNameFilter" label="Modèle" append-icon="mdi-magnify" class="mx-4"></v-text-field>
+          <v-text-field v-model="typeNameFilter" label="Type" append-icon="mdi-magnify" class="mx-4"></v-text-field>
+          <v-text-field v-model="macAddressFilter" label="Adresse MAC" append-icon="mdi-magnify"
+            class="mx-4"></v-text-field>
+          <v-select v-model="etatFilter" label="Filtrer par État" :items="[{ text: 'tous', value: '' }, ...stateCycle]"
+            read-only class="mx-4"></v-select>
+          <v-spacer></v-spacer>
+          <v-dialog v-model="appareilDialog" max-width="500px">
+            <template v-slot:activator="{ on }">
+              <v-btn color="primary" dark class="mb-2" v-on="on">Nouvel Appareil</v-btn>
+            </template>
+            <v-card>
+              <v-card-title><span class="text-h5">Nouvel Appareil</span></v-card-title>
+              <v-card-text>
+                <v-container>
+                  <v-select v-model="selectedModelId" :items="modelOptions" label="Nom de Modèle" class="m-2"></v-select>
+                  <v-text-field v-model="MacAddress" label="Adresse MAC" class="m-2"></v-text-field>
+                  <v-select v-model="selectedState" :items="stateCycle"
+                    label="État de l'appareil (optionnel, par défaut à stock)" class="m-2"></v-select>
+                </v-container>
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="blue darken-1" text @click="appareilDialog = false">Annuler</v-btn>
+                <v-btn color="blue darken-1" text @click="addDevice">Sauvegarder</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+        </v-toolbar>
+      </template>
+      <template v-slot:[`item.actions`]="{ item }">
+        <v-icon small class="mr-2" @click="changeState(item)">mdi-power-plug</v-icon>
+        <v-icon small @click="deleteAppareil(item.id_appareil)">mdi-delete</v-icon>
+      </template>
+    </v-data-table>
+
+    <br>
+
+    <v-data-table :headers="connexionHeaders" :items="filteredConnexions" :sort-by="['datefin', 'datedebut']"
+      :sort-desc="[true, true]" class="elevation-5">
+      <template v-slot:top>
+        <v-toolbar flat class="py-5">
+          <v-toolbar-title>Connexions</v-toolbar-title>
+          <v-divider class="mx-3" inset vertical></v-divider>
+          <v-text-field v-model="childIDFilter" label="ID Appareil Enfant" append-icon="mdi-magnify" class="mx-4"></v-text-field>
+          <v-text-field v-model="childMACFilter" label="Adresse MAC Enfant" append-icon="mdi-magnify" class="mx-4"></v-text-field>
+          <v-text-field v-model="parentIDFilter" label="ID Appareil Parent" append-icon="mdi-magnify" class="mx-4"></v-text-field>
+          <v-text-field v-model="parentMACFilter" label="Adresse MAC Parent" append-icon="mdi-magnify" class="mx-4"></v-text-field>
+
+          <v-spacer></v-spacer>
+          <v-dialog v-model="connexionDialog" max-width="800px">
+            <template v-slot:activator="{ on }">
+              <v-btn color="primary" dark class="mb-2" v-on="on">Nouvelle connexion</v-btn>
+            </template>
+            <v-card>
+              <v-card-title><span class="text-h5">Nouvelle Connexion</span></v-card-title>
+              <v-card-text>
+                <v-container>
+                  <v-row>
+                    <v-col>
+                      <v-select v-model="selectedChildMAC" :items="installedMACAddresses" label="Adresse MAC Enfant (qui va se connecter)" class="mx-4"></v-select>
+                    </v-col>
+                    <v-col>
+                      <v-select v-model="selectedParentMAC" :items="installedMACAddresses" label="Adresse MAC Parent (qui reçoit la connexion)" class="mx-4"></v-select>
+                    </v-col>
+                  </v-row>
+                </v-container>
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="blue darken-1" text @click="connexionDialog = false">Annuler</v-btn>
+                <v-btn color="blue darken-1" text @click="connectDevices">Connecter</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+        </v-toolbar>
+        <v-divider class="mx-3" inset vertical></v-divider>
+      </template>
+      <template v-slot:[`item.actions`]="{ item }">
+        <v-icon small @click="deleteConnexion(item.id_connexion)">mdi-delete</v-icon>
+      </template>
+    </v-data-table>
+  </div>
+</template>
   
   
 <script lang="ts">
@@ -122,47 +117,47 @@ interface Connexion {
 export default defineComponent({
   data() {
     return {
-        appareils: [] as Appareil[],
-        modelNameFilter: '',
-        typeNameFilter: '',
-        macAddressFilter: '',
-        etatFilter: '',
-        parentIDFilter: '',
-        childIDFilter: '',
-        parentMACFilter: '',
-        childMACFilter: '',
-        modelOptions: [] as { value: number, text: string; }[],
-        selectedModelId: 0,
-        MacAddress: '' as string,
-        stateCycle: ['stock', 'installé', 'maintenance'] as string[],
-        selectedState: null,
-        connexions: [] as Connexion[],
-        parentMACAddresses: [] as { value: number, text: string; }[],
-        childMACAddresses: [] as { value: number, text: string; }[],
-        selectedParentMAC: null,
-        selectedChildMAC: null,
-        startDate: null as Date | null,
-        endDate: null as Date | null,
-        appareilsHeaders: [
-            { text: 'ID Appareil', value: 'id_appareil' },
-            { text: 'Nom Modèle', value: 'modele.nomModele' },
-            { text: 'Nom Type', value: 'modele.type.nomType' },
-            { text: 'Adresse MAC', value: 'mac_address' },
-            { text: 'État', value: 'etat' },
-            { text: 'Actions', value: 'actions', sortable: false },
-        ],
-        connexionHeaders: [
-            { text: 'ID Connexion', value: 'id_connexion' },
-            { text: 'ID Appareil Enfant', value: 'id_appareil_enfant' },
-            { text: 'Adresse MAC Enfant', value: 'appareilEnfant.mac_address' },
-            { text: 'ID Appareil Parent', value: 'id_appareil_parent' },
-            { text: 'Adresse MAC Parent', value: 'appareilParent.mac_address' },
-            { text: 'Date de Début', value: 'datedebut' },
-            { text: 'Date de Fin', value: 'datefin' },
-        ],
-        appareilDialog: false,
-        connexionDialog: false,
-        };
+      appareils: [] as Appareil[],
+      modelNameFilter: '',
+      typeNameFilter: '',
+      macAddressFilter: '',
+      etatFilter: '',
+      parentIDFilter: '',
+      childIDFilter: '',
+      parentMACFilter: '',
+      childMACFilter: '',
+      modelOptions: [] as { value: number, text: string; }[],
+      selectedModelId: 0,
+      MacAddress: '' as string,
+      stateCycle: ['stock', 'installé', 'maintenance'] as string[],
+      selectedState: null,
+      connexions: [] as Connexion[],
+      installedMACAddresses: [] as { value: number, text: string; }[],
+      selectedParentMAC: null,
+      selectedChildMAC: null,
+      startDate: null as Date | null,
+      endDate: null as Date | null,
+      appareilsHeaders: [
+        { text: 'ID Appareil', value: 'id_appareil' },
+        { text: 'Nom Modèle', value: 'modele.nomModele' },
+        { text: 'Nom Type', value: 'modele.type.nomType' },
+        { text: 'Adresse MAC', value: 'mac_address' },
+        { text: 'État', value: 'etat' },
+        { text: 'Actions', value: 'actions' },
+      ],
+      connexionHeaders: [
+        { text: 'ID Connexion', value: 'id_connexion' },
+        { text: 'ID Appareil Enfant', value: 'id_appareil_enfant' },
+        { text: 'Adresse MAC Enfant', value: 'appareilEnfant.mac_address' },
+        { text: 'ID Appareil Parent', value: 'id_appareil_parent' },
+        { text: 'Adresse MAC Parent', value: 'appareilParent.mac_address' },
+        { text: 'Date de Début', value: 'datedebut' },
+        { text: 'Date de Fin', value: 'datefin' },
+        { text: 'Actions', value: 'actions' },
+      ],
+      appareilDialog: false,
+      connexionDialog: false,
+    };
   },
   computed: {
     filteredAppareils(): Appareil[] {
@@ -206,7 +201,7 @@ export default defineComponent({
         filtered = filtered.filter((connexion) => {
           return (
             connexion.id_appareil_parent && connexion.id_appareil_parent === Number(this.parentIDFilter)
-            );
+          );
         });
       }
 
@@ -214,7 +209,7 @@ export default defineComponent({
         filtered = filtered.filter((connexion) => {
           return (
             connexion.id_appareil_enfant && connexion.id_appareil_enfant === Number(this.childIDFilter)
-            );
+          );
         });
       }
 
@@ -262,7 +257,7 @@ export default defineComponent({
         console.error('Error deleting appareil:', error);
       }
     },
-  
+
     async loadModelOptions() {
       try {
         const response = await axios.get(`${API_BASE_URL}/modele_appareils`);
@@ -276,38 +271,31 @@ export default defineComponent({
     },
 
     async connectDevices() {
-    const { selectedParentMAC, selectedChildMAC, startDate, endDate } = this;
-    let formattedEndDate = endDate === null ? '9999-12-31' : endDate;
+      const { selectedParentMAC, selectedChildMAC } = this;
+      const now = new Date().toLocaleDateString().split("/");
+      const formattedNowDate = now[2] + "-" + now[1].padStart(2, '0') + "-" + now[0].padStart(2, '0');
+      const formattedEndDate = '9999-12-31';
 
-    if (!startDate) {
-        alert("Veuillez entrer une date de début de connexion.");
-        return;
-    }
 
-    if (!selectedChildMAC || !selectedParentMAC) {
+      if (!selectedChildMAC || !selectedParentMAC) {
         alert("Vérifiez que l'adresse MAC du parent ou de l'enfant n'est pas vide.");
         return;
-    }
+      }
 
-    if (selectedParentMAC === selectedChildMAC) {
+      if (selectedParentMAC === selectedChildMAC) {
         alert("L'adresse MAC de l'enfant ne peut pas être la même que celle du parent.");
         return;
-    }
+      }
 
-    if (startDate >= formattedEndDate) {
-        alert("La date de début doit être antérieure à la date de fin.");
-        return;
-    }
+      const parentAppareil = this.appareils.find(appareil => appareil.mac_address === selectedParentMAC);
+      const childAppareil = this.appareils.find(appareil => appareil.mac_address === selectedChildMAC);
 
-    const parentAppareil = this.appareils.find(appareil => appareil.mac_address === selectedParentMAC);
-    const childAppareil = this.appareils.find(appareil => appareil.mac_address === selectedChildMAC);
-
-    try {
+      try {
         await axios.post(`${API_BASE_URL}/connexions`, {
-        id_appareil_parent: parentAppareil?.id_appareil,
-        id_appareil_enfant: childAppareil?.id_appareil,
-        datedebut: startDate,
-        datefin: formattedEndDate,
+          id_appareil_parent: parentAppareil?.id_appareil,
+          id_appareil_enfant: childAppareil?.id_appareil,
+          datedebut: formattedNowDate,
+          datefin: formattedEndDate,
         });
 
         const response = await axios.get(`${API_BASE_URL}/connexions`);
@@ -315,45 +303,43 @@ export default defineComponent({
 
         this.selectedParentMAC = null;
         this.selectedChildMAC = null;
-        this.startDate = null;
-        this.endDate = null;
         alert("Appareils connectés avec succès!");
         this.connexionDialog = false;
-    } catch (error) {
+      } catch (error) {
         console.error('Erreur lors de la connexion des appareils:', error);
         alert("Une erreur s'est produite lors de la connexion des appareils. Veuillez réessayer en vérifiant que les dates ne se chevauchent pas pour l'appareil enfant.");
-    }
+      }
     },
 
     getParentConnexions(appareilId: number) {
       const now = new Date().toLocaleDateString().split("/");
-      const formattednowDate = now[2] + "-" + now[1].padStart(2, '0') + "-" + now[0].padStart(2, '0');
+      const formattedNowDate = now[2] + "-" + now[1].padStart(2, '0') + "-" + now[0].padStart(2, '0');
 
       const parentConnexions = this.connexions.filter(connexion => {
         return (
           connexion.id_appareil_parent === appareilId &&
-          (connexion.datefin >= formattednowDate) &&
-          (connexion.datedebut <= formattednowDate)
+          (connexion.datefin >= formattedNowDate) &&
+          (connexion.datedebut <= formattedNowDate)
         );
       });
 
       return parentConnexions;
     },
 
-      getChildConnexions(appareilId: number) {
-        const now = new Date().toLocaleDateString().split("/");
-        const formattednowDate = now[2] + "-" + now[1].padStart(2, '0') + "-" + now[0].padStart(2, '0');
+    getChildConnexions(appareilId: number) {
+      const now = new Date().toLocaleDateString().split("/");
+      const formattedNowDate = now[2] + "-" + now[1].padStart(2, '0') + "-" + now[0].padStart(2, '0');
 
-        const parentConnexions = this.connexions.filter(connexion => {
-          return (
-            connexion.id_appareil_enfant === appareilId &&
-            (connexion.datefin >= formattednowDate) &&
-            (connexion.datedebut <= formattednowDate)
-          );
-        });
+      const parentConnexions = this.connexions.filter(connexion => {
+        return (
+          connexion.id_appareil_enfant === appareilId &&
+          (connexion.datefin >= formattedNowDate) &&
+          (connexion.datedebut <= formattedNowDate)
+        );
+      });
 
-        return parentConnexions;
-      },
+      return parentConnexions;
+    },
 
     async disconnectDevices(appareilId: number, isParent: boolean) {
       const now = new Date().toLocaleDateString().split("/");
@@ -362,17 +348,23 @@ export default defineComponent({
       try {
         if (isParent) {
           const parentConnexions = this.getParentConnexions(appareilId);
-          for (const connexion of parentConnexions) {
-            await axios.put(`${API_BASE_URL}/connexions/${connexion.id_connexion}`, {
-              datefin: formattedNowDate,
-            });
+          if (Object.keys(parentConnexions).length > 0) {
+            for (const connexion of parentConnexions) {
+              await axios.put(`${API_BASE_URL}/connexions/${connexion.id_connexion}`, {
+                datefin: formattedNowDate,
+              });
+            }
+            alert(`Connexions où l'appareil ${appareilId} est parent déconnectées avec succès !`);
           }
         } else {
           const childConnexions = this.getChildConnexions(appareilId);
-          for (const connexion of childConnexions) {
-            await axios.put(`${API_BASE_URL}/connexions/${connexion.id_connexion}`, {
-              datefin: formattedNowDate,
-            });
+          if(Object.keys(childConnexions).length > 0) {
+            for (const connexion of childConnexions) {
+              await axios.put(`${API_BASE_URL}/connexions/${connexion.id_connexion}`, {
+                datefin: formattedNowDate,
+              });
+            }
+            alert(`Connexions où l'appareil ${appareilId} est enfant déconnectées avec succès !`);
           }
         }
       } catch (error) {
@@ -395,7 +387,6 @@ export default defineComponent({
 
           const response = await axios.get(`${API_BASE_URL}/connexions`);
           this.connexions = response.data;
-          alert("Connexions déconnectées avec succès !");
         }
 
         await axios.put(`${API_BASE_URL}/appareils/${appareil.id_appareil}`, {
@@ -439,6 +430,7 @@ export default defineComponent({
         const updatedAppareil = addedDeviceResponse.data;
         this.appareils.push(updatedAppareil);
         this.appareils.sort((a, b) => a.id_appareil - b.id_appareil);
+        this.loadMACAddresses();
 
         this.selectedModelId = 0;
         this.MacAddress = '';
@@ -452,20 +444,30 @@ export default defineComponent({
     },
 
     async loadMACAddresses() {
-    try {
+      try {
         const response = await axios.get(`${API_BASE_URL}/appareils`);
-        const installedMACAddresses = response.data
-        .filter((appareil: { etat: string }) => appareil.etat === "installé")
-        .map((appareil: { mac_address: string; id_appareil: number; }) => ({
+        this.installedMACAddresses = response.data
+          .filter((appareil: { etat: string }) => appareil.etat === "installé")
+          .map((appareil: { mac_address: string; id_appareil: number; }) => ({
             value: appareil.mac_address,
             text: appareil.mac_address,
             id: appareil.id_appareil,
-        }));
-        this.parentMACAddresses = [...installedMACAddresses];
-        this.childMACAddresses = [...installedMACAddresses];
-    } catch (error) {
+          }));
+        this.installedMACAddresses = this.installedMACAddresses.sort((a, b) => a.value - b.value);
+      } catch (error) {
         console.error('Error loading MAC addresses:', error);
-    }
+      }
+    },
+
+    async deleteConnexion(idConnexion: number) {
+      try {
+        await axios.delete(`${API_BASE_URL}/connexions/${idConnexion}`);
+        this.connexions = this.connexions.filter(connexion => connexion.id_connexion !== idConnexion);
+        alert("Connexion supprimée avec succès.");
+      } catch (error) {
+        console.error('Error deleting connexion:', error);
+        alert("Une erreur s'est produite lors de la suppression de la connexion. Veuillez réessayer.");
+      }
     },
 
   },
