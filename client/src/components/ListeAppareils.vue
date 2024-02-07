@@ -453,7 +453,7 @@ export default defineComponent({
             text: appareil.mac_address,
             id: appareil.id_appareil,
           }));
-        this.installedMACAddresses = this.installedMACAddresses.sort((a, b) => a.value - b.value);
+        this.installedMACAddresses = this.installedMACAddresses.sort((a, b) => a.text.localeCompare(b.text));
       } catch (error) {
         console.error('Error loading MAC addresses:', error);
       }

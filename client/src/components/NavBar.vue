@@ -1,27 +1,21 @@
 <template>
-    <v-app>
-      <v-app-bar app color="primary">
-        <v-toolbar-title>4MTec</v-toolbar-title>
-        <v-spacer></v-spacer>
-        <v-btn text to="/liste">Liste des appareils</v-btn>
-      </v-app-bar>
-  
-      <v-main>
-        <router-view></router-view>
-      </v-main>
-    </v-app>
+  <v-app-bar app color="primary">
+    <v-btn icon to="/">
+      <v-icon>mdi-home</v-icon>
+    </v-btn>
+    <v-toolbar-title>Application Full-stack</v-toolbar-title>
+  </v-app-bar>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
 
 export default defineComponent({
-data() {
+  data() {
     return {
     };
-},
+  },
 });
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>
