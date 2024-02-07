@@ -1,7 +1,16 @@
 import express, { Request, Response } from 'express';
 import TypeAppareil from '../models/typeAppareil.js';
+import { typeAppareilSchema } from '../schemas/typeAppareil_schema.js';
 
 const router = express.Router();
+
+const validateTypeAppareil = (req: Request, res: Response, next: Function) => {
+  const { error } = typeAppareilSchema.validate(req.body);
+  if (error) {
+    return res.status(400).json({ error: error.details[0].message });
+  }
+  next();
+};
 
 router.get('/', async (req: Request, res: Response) => {
   const { nomType } = req.query;
@@ -30,8 +39,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     const type = await TypeAppareil.findByPk(typeId);
 
     if (!type) {
-      res.status(404).json({ error: 'Type not found' });
-      return;
+      return res.status(404).json({ error: 'Type not found' });
     }
 
     res.json(type);
@@ -41,11 +49,17 @@ router.get('/:id', async (req: Request, res: Response) => {
   }
 });
 
-router.post('/', async (req: Request, res: Response) => {
-  const { nom } = req.body;
+router.post('/', validateTypeAppareil, async (req: Request, res: Response) => {
+  const { nomType } = req.body;
+
+  const existingType = await TypeAppareil.findOne({ where: { nomType }});
+
+  if (existingType) {
+    return res.status(400).json({ error: 'nomType already exists' });
+  }
 
   try {
-    const newType = await TypeAppareil.create({ nom });
+    const newType = await TypeAppareil.create({ nomType });
     res.status(201).json(newType);
   } catch (error) {
     console.error(error);
@@ -53,19 +67,24 @@ router.post('/', async (req: Request, res: Response) => {
   }
 });
 
-router.put('/:id', async (req: Request, res: Response) => {
+router.put('/:id', validateTypeAppareil, async (req: Request, res: Response) => {
   const typeId = req.params.id;
-  const { nom } = req.body;
+  const { nomType } = req.body;
+
+  const existingType = await TypeAppareil.findOne({ where: { nomType }});
+
+  if (existingType) {
+    return res.status(400).json({ error: 'nomType already exists' });
+  }
 
   try {
     const type = await TypeAppareil.findByPk(typeId);
 
     if (!type) {
-      res.status(404).json({ error: 'Type not found' });
-      return;
+      return res.status(404).json({ error: 'Type not found' });
     }
 
-    await type.update({ nom });
+    await type.update({ nomType });
     res.json(type);
   } catch (error) {
     console.error(error);
@@ -80,8 +99,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
     const type = await TypeAppareil.findByPk(typeId);
 
     if (!type) {
-      res.status(404).json({ error: 'Type not found' });
-      return;
+      return res.status(404).json({ error: 'Type not found' });
     }
 
     await type.destroy();

@@ -3,6 +3,7 @@ import Appareil from '../models/appareil';
 import ModeleAppareil from '../models/modeleAppareil';
 import TypeAppareil from '../models/typeAppareil';
 import { Op } from 'sequelize';
+import { postAppareilSchema, putAppareilSchema } from '../schemas/appareil_schema';
 
 const router = express.Router();
 
@@ -60,8 +61,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!appareil) {
-      res.status(404).json({ error: 'Appareil not found' });
-      return;
+      return res.status(404).json({ error: 'Appareil not found' });
     }
 
     res.json(appareil);
@@ -73,19 +73,31 @@ router.get('/:id', async (req: Request, res: Response) => {
 
 router.post('/', async (req: Request, res: Response) => {
   const { id_modele, mac_address, etat } = req.body;
-  try {
-    const existingAppareil = await Appareil.findOne({
-      where: {
-        mac_address: {
-          [Op.eq]: mac_address,
-        },
+
+  const { error } = postAppareilSchema.validate(req.body);
+  if (error) {
+    return res.status(400).json({ error: error.details[0].message });
+  }
+
+  const existingIDModele = await ModeleAppareil.findByPk(id_modele);
+
+  if (!existingIDModele) {
+    return res.status(404).json({ error: 'ID Modèle non trouvé' });
+  }
+
+  const existingAppareil = await Appareil.findOne({
+    where: {
+      mac_address: {
+        [Op.eq]: mac_address,
       },
-    });
-  
-    if (existingAppareil) {
-      return res.status(409).json({ error: 'MAC already exists' });
-    }
-  
+    },
+  });
+
+  if (existingAppareil) {
+    return res.status(409).json({ error: 'MAC already exists' });
+  }
+
+  try {  
     const newAppareil = await Appareil.create({ id_modele, mac_address, etat });
     res.status(201).json(newAppareil);
   } catch (error) {
@@ -98,18 +110,38 @@ router.put('/:id', async (req: Request, res: Response) => {
   const appareilId = req.params.id;
   const { id_modele, mac_address, etat } = req.body;
 
+  const { error } = putAppareilSchema.validate(req.body);
+  if (error) {
+    return res.status(400).json({ error: error.details[0].message });
+  }
+
+  if (id_modele) {
+    const existingIDModele = await ModeleAppareil.findByPk(id_modele);
+
+    if (!existingIDModele) {
+      return res.status(404).json({ error: 'ID Modèle non trouvé' });
+    }
+  }
+
+  if (mac_address) {
+    const existingAppareil = await Appareil.findOne({
+      where: {
+        mac_address: {
+          [Op.eq]: mac_address,
+        },
+      },
+    });
+  
+    if (existingAppareil) {
+      return res.status(409).json({ error: 'MAC already exists' });
+    }
+  }
+
   try {
     const appareil = await Appareil.findByPk(appareilId);
 
     if (!appareil) {
-      res.status(404).json({ error: 'Appareil not found' });
-      return;
-    }
-
-    const stateCycle = ['stock', 'installé', 'maintenance'];
-    if (!stateCycle.includes(etat)) {
-      res.status(400).json({ error: 'Invalid device state value' });
-      return;
+      return res.status(404).json({ error: 'Appareil not found' });
     }
 
     await appareil.update({ id_modele, mac_address, etat });
@@ -127,8 +159,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
     const appareil = await Appareil.findByPk(appareilId);
 
     if (!appareil) {
-      res.status(404).json({ error: 'Appareil not found' });
-      return;
+      return res.status(404).json({ error: 'Appareil not found' });
     }
 
     await appareil.destroy();

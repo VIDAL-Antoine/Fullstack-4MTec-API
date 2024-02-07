@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
 import ModeleAppareil from '../models/modeleAppareil';
 import TypeAppareil from '../models/typeAppareil';
+import { postModeleAppareilSchema, putModeleAppareilSchema } from '../schemas/modeleAppareil_schema';
 
 const router = express.Router();
 
@@ -61,6 +62,23 @@ router.get('/:id', async (req: Request, res: Response) => {
 
 router.post('/', async (req: Request, res: Response) => {
   const { nomModele, type_appareil_id } = req.body;
+  
+  const { error } = postModeleAppareilSchema.validate(req.body);
+  if (error) {
+    return res.status(400).json({ error: error.details[0].message });
+  }
+  
+  const existingModele = await ModeleAppareil.findOne({ where: { nomModele }});
+
+  if (existingModele) {
+    return res.status(400).json({ error: 'nomModele already exists' });
+  }
+
+  const existingIDType = await TypeAppareil.findByPk(type_appareil_id);
+
+  if (!existingIDType) {
+    return res.status(404).json({ error: 'ID Type non trouvé' });
+  }
 
   try {
     const newModele = await ModeleAppareil.create({ nomModele, type_appareil_id });
@@ -75,12 +93,32 @@ router.put('/:id', async (req: Request, res: Response) => {
   const modeleId = req.params.id;
   const { nomModele, type_appareil_id } = req.body;
 
+  const { error } = putModeleAppareilSchema.validate(req.body);
+  if (error) {
+    return res.status(400).json({ error: error.details[0].message });
+  }
+  
+  if (nomModele) {
+    const existingModele = await ModeleAppareil.findOne({ where: { nomModele }});
+
+    if (existingModele) {
+      return res.status(400).json({ error: 'nomModele already exists' });
+    }
+  }
+
+  if (type_appareil_id) {
+    const existingIDType = await TypeAppareil.findByPk(type_appareil_id);
+
+    if (!existingIDType) {
+      return res.status(404).json({ error: 'ID Type non trouvé' });
+    }
+  }
+
   try {
     const modele = await ModeleAppareil.findByPk(modeleId);
 
     if (!modele) {
-      res.status(404).json({ error: 'Modele not found' });
-      return;
+      return res.status(404).json({ error: 'Modele not found' });
     }
 
     await modele.update({ nomModele, type_appareil_id });

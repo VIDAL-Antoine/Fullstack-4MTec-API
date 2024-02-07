@@ -31,7 +31,7 @@ export const initConnexionModel = (sequelize: Sequelize) => {
       },
       datefin: {
         type: DataTypes.DATEONLY,
-        allowNull: true,
+        allowNull: false,
       },
     },
     {
