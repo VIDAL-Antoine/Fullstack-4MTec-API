@@ -59,8 +59,8 @@ router.post('/', validateTypeAppareil, async (req: Request, res: Response) => {
   }
 
   try {
-    const newType = await TypeAppareil.create({ nomType });
-    res.status(201).json(newType);
+    const nouveauType = await TypeAppareil.create({ nomType });
+    res.status(201).json(nouveauType);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Erreur interne au serveur' });
