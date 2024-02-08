@@ -18,20 +18,17 @@ export const initAppareilModel = (sequelize: Sequelize) => {
       },
       id_modele: {
         type: DataTypes.INTEGER,
-        allowNull: true,
+        allowNull: false,
       },
       mac_address: {
-        type: DataTypes.STRING(17),
+        type: DataTypes.MACADDR,
         allowNull: false,
         unique: true,
       },
       etat: {
-        type: DataTypes.STRING(255),
-        allowNull: true,
+        type: DataTypes.ENUM('stock', 'installé', 'maintenance'),
+        allowNull: false,
         defaultValue: 'stock',
-        validate: {
-          isIn: [['stock', 'installé', 'maintenance']],
-        },
       },
     },
     {

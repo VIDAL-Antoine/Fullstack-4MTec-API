@@ -16,6 +16,7 @@ export const initTypeAppareilModel = (sequelize: Sequelize) => {
       nomType: {
         type: DataTypes.STRING(255),
         allowNull: false,
+        unique: true,
       },
     },
     {

@@ -260,7 +260,7 @@ export default defineComponent({
 
     async loadModelOptions() {
       try {
-        const response = await axios.get(`${API_BASE_URL}/modele_appareils`);
+        const response = await axios.get(`${API_BASE_URL}/modele-appareils`);
         this.modelOptions = response.data.map((modele: { id: number; nomModele: string }) => ({
           value: modele.id,
           text: modele.nomModele,
@@ -439,7 +439,7 @@ export default defineComponent({
         this.appareilDialog = false;
       } catch (error) {
         console.error('Error adding device:', error);
-        alert("Une erreur s'est produite lors de la création de l'appareil. Veuillez réessayer.");
+        alert("Une erreur s'est produite lors de la création de l'appareil. Veuillez réessayer en vérifiant notamment l'adresse MAC.");
       }
     },
 

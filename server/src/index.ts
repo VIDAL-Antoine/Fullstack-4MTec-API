@@ -14,8 +14,8 @@ import Sequelize from './database';
 const app: Express = express();
 app.use(cors());
 app.use(express.json());
-app.use('/type_appareils', type_appareils_routes);
-app.use('/modele_appareils', modele_appareils_routes);
+app.use('/type-appareils', type_appareils_routes);
+app.use('/modele-appareils', modele_appareils_routes);
 app.use('/appareils', appareils_routes);
 app.use('/connexions', connexions_routes);
 
@@ -23,13 +23,7 @@ initTypeAppareilModel(Sequelize);
 initModeleAppareilModel(Sequelize);
 initAppareilModel(Sequelize);
 initConnexionModel(Sequelize);
-
-app.get("/hi", (req:Request, res:Response) => {
-    res.send("sa");
-})
-
-Sequelize.sync().then(() => {
-    app.listen(port, () => {
-      console.log(`Server is running on http://localhost:${port}`);
-    });
+  
+app.listen(port, () => {
+  console.log(`Server is running on http://localhost:${port}`);
 });

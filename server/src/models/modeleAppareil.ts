@@ -18,6 +18,7 @@ export const initModeleAppareilModel = (sequelize: Sequelize) => {
       nomModele: {
         type: DataTypes.STRING(255),
         allowNull: false,
+        unique: true,
       },
       type_appareil_id: {
         type: DataTypes.INTEGER,
