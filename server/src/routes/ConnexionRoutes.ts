@@ -3,11 +3,16 @@ import Connexion from '../models/ConnexionModel';
 import { Op } from 'sequelize';
 import Appareil from '../models/AppareilModel';
 import { postConnexionSchema, putConnexionSchema } from '../schemas/ConnexionSchema';
+import ModeleAppareil from '../models/ModeleAppareilModel';
+import TypeAppareil from '../models/TypeAppareilModel';
 
 const router = express.Router();
 
 router.get('/', async (req: Request, res: Response) => {
-    const { idAppareilParent, idAppareilEnfant, dateDebut, dateFin } = req.query;
+    const { idAppareilParent, idAppareilEnfant, dateDebut, dateFin,
+      adresseMACParent, adresseMACEnfant, etatParent, etatEnfant,
+      idModeleAppareilParent, idModeleAppareilEnfant, nomModeleParent, nomModeleEnfant,
+      idTypeAppareilParent, idTypeAppareilEnfant, nomTypeParent, nomTypeEnfant} = req.query;
     const optionsFiltre: any = {};
   
     if (idAppareilParent) {
@@ -28,12 +33,68 @@ router.get('/', async (req: Request, res: Response) => {
       optionsFiltre.dateFin = { [Op.lte]: dateFin };
     }
 
+    if (adresseMACParent) {
+      optionsFiltre['$appareilParent.adresse_mac$'] = adresseMACParent;
+    }
+
+    if (adresseMACEnfant) {
+      optionsFiltre['$appareilEnfant.adresse_mac$'] = adresseMACEnfant;
+    }
+
+    if (etatParent) {
+      optionsFiltre['$appareilParent.etat$'] = etatParent;
+    }
+
+    if (etatEnfant) {
+      optionsFiltre['$appareilEnfant.etat$'] = etatEnfant;
+    }
+
+    if (idModeleAppareilParent) {
+      optionsFiltre['$appareilParent.id_modele_appareil$'] = idModeleAppareilParent;
+    }
+
+    if (idModeleAppareilEnfant) {
+      optionsFiltre['$appareilEnfant.id_modele_appareil$'] = idModeleAppareilEnfant;
+    }
+
+    if (nomModeleParent) {
+      optionsFiltre['$appareilParent.modele.nom_modele$'] = nomModeleParent;
+    }
+
+    if (nomModeleEnfant) {
+      optionsFiltre['$appareilEnfant.modele.nom_modele$'] = nomModeleEnfant;
+    }
+
+    if (idTypeAppareilParent) {
+      optionsFiltre['$appareilParent.modele.id_type_appareil$'] = idTypeAppareilParent;
+    }
+
+    if (idTypeAppareilEnfant) {
+      optionsFiltre['$appareilEnfant.modele.id_type_appareil$'] = idTypeAppareilEnfant;
+    }
+
+    if (nomTypeParent) {
+      optionsFiltre['$appareilParent.modele.type.nom_type$'] = nomTypeParent;
+    }
+
+    if (nomTypeEnfant) {
+      optionsFiltre['$appareilEnfant.modele.type.nom_type$'] = nomTypeEnfant;
+    }
+
     try {
       const connexions = await Connexion.findAll({
         where: optionsFiltre,
         include: [
-          { model: Appareil, as: 'appareilParent' },
-          { model: Appareil, as: 'appareilEnfant' }
+          { model: Appareil, as: 'appareilParent',
+            include: [{ model: ModeleAppareil, as: 'modele',
+              include: [{ model: TypeAppareil, as: 'type'}]
+            }]
+          },
+          { model: Appareil, as: 'appareilEnfant',
+            include: [{ model: ModeleAppareil, as: 'modele',
+              include: [{ model: TypeAppareil, as: 'type'}]
+            }]
+          },
         ]
       });
   
@@ -42,7 +103,7 @@ router.get('/', async (req: Request, res: Response) => {
       console.error(error);
       res.status(500).json({ error: 'Erreur interne au serveur' });
     }
-  });
+});
 
 router.get('/:id', async (req: Request, res: Response) => {
   const idConnexion = req.params.id;
@@ -50,8 +111,16 @@ router.get('/:id', async (req: Request, res: Response) => {
   try {
     const connexion = await Connexion.findByPk(idConnexion, {
       include: [
-        { model: Appareil, as: 'appareilParent' },
-        { model: Appareil, as: 'appareilEnfant' }
+        { model: Appareil, as: 'appareilParent',
+          include: [{ model: ModeleAppareil, as: 'modele',
+            include: [{ model: TypeAppareil, as: 'type'}]
+          }]
+        },
+        { model: Appareil, as: 'appareilEnfant',
+          include: [{ model: ModeleAppareil, as: 'modele',
+            include: [{ model: TypeAppareil, as: 'type'}]
+          }]
+        },
       ]
     });
 
@@ -97,6 +166,10 @@ router.post('/', async (req: Request, res: Response) => {
     return res.status(400).json({ error: "L'appareil enfant doit être à l'état 'installé' pour être connecté."});
   }
 
+  if (dateDebut >= dateFin) {
+    return res.status(400).json({ error: "La date de début doit être antérieure à la date de fin."});
+  }
+
   const connexionsExistantes = await Connexion.findAll({
     where: {
       idAppareilEnfant,
@@ -135,8 +208,12 @@ router.put('/:id', async (req: Request, res: Response) => {
     return res.status(404).json({ error: 'Connexion non trouvée' });
   }
 
-  if (idAppareilEnfant === idAppareilParent || connexion.idAppareilEnfant === idAppareilParent || connexion.idAppareilParent === idAppareilEnfant) {
+  if ((idAppareilEnfant && idAppareilParent && idAppareilEnfant === idAppareilParent) || connexion.idAppareilEnfant === idAppareilParent || connexion.idAppareilParent === idAppareilEnfant) {
     return res.status(400).json({ error: "Le parent et l'enfant doivent être des appareils différents."})
+  }
+
+  if (dateDebut >= dateFin || connexion.dateDebut >= dateFin || connexion.dateFin <= dateDebut) {
+    return res.status(400).json({ error: "La date de début doit être antérieure à la date de fin."});
   }
 
   if (idAppareilParent) {
