@@ -1,22 +1,24 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
 
 class TypeAppareil extends Model {
-  public id!: number;
+  public idType!: number;
   public nomType!: string;
 }
 
 export const initTypeAppareilModel = (sequelize: Sequelize) => {
   TypeAppareil.init(
     {
-      id: {
+      idType: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
         primaryKey: true,
+        field: 'id_type'
       },
       nomType: {
         type: DataTypes.STRING(255),
         allowNull: false,
         unique: true,
+        field: 'nom_type'
       },
     },
     {

@@ -1,28 +1,31 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
-import TypeAppareil from './typeAppareil';
+import TypeAppareil from './TypeAppareilModel';
 
 class ModeleAppareil extends Model {
-  public id!: number;
+  public idModele!: number;
   public nomModele!: string;
-  public type_appareil_id!: number;
+  public idTypeAppareil!: number;
 }
 
 export const initModeleAppareilModel = (sequelize: Sequelize) => {
     ModeleAppareil.init(
     {
-      id: {
+      idModele: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
         primaryKey: true,
+        field: 'id_modele'
       },
       nomModele: {
         type: DataTypes.STRING(255),
         allowNull: false,
         unique: true,
+        field: 'nom_modele'
       },
-      type_appareil_id: {
+      idTypeAppareil: {
         type: DataTypes.INTEGER,
         allowNull: false,
+        field: 'id_type_appareil'
       },
     },
     {
@@ -33,8 +36,8 @@ export const initModeleAppareilModel = (sequelize: Sequelize) => {
   );
 
   ModeleAppareil.belongsTo(TypeAppareil, {
-    foreignKey: 'type_appareil_id',
-    targetKey: 'id',
+    foreignKey: 'idTypeAppareil',
+    targetKey: 'idType',
     as: 'type',
   });
 };

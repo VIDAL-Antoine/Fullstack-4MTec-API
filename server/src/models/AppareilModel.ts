@@ -1,34 +1,38 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
-import ModeleAppareil from './modeleAppareil';
+import ModeleAppareil from './ModeleAppareilModel';
 
 class Appareil extends Model {
-  public id_appareil!: number;
-  public id_modele!: number;
-  public mac_address!: string;
+  public idAppareil!: number;
+  public idModeleAppareil!: number;
+  public adresseMAC!: string;
   public etat!: string;
 }
 
 export const initAppareilModel = (sequelize: Sequelize) => {
   Appareil.init(
     {
-      id_appareil: {
+      idAppareil: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
         primaryKey: true,
+        field: 'id_appareil',
       },
-      id_modele: {
+      idModeleAppareil: {
         type: DataTypes.INTEGER,
         allowNull: false,
+        field: 'id_modele_appareil',
       },
-      mac_address: {
+      adresseMAC: {
         type: DataTypes.MACADDR,
         allowNull: false,
         unique: true,
+        field: 'adresse_mac',
       },
       etat: {
         type: DataTypes.ENUM('stock', 'installé', 'maintenance'),
         allowNull: false,
         defaultValue: 'stock',
+        field: 'etat',
       },
     },
     {
@@ -39,8 +43,8 @@ export const initAppareilModel = (sequelize: Sequelize) => {
   );
 
   Appareil.belongsTo(ModeleAppareil, {
-    foreignKey: 'id_modele',
-    targetKey: 'id',
+    foreignKey: 'idModeleAppareil',
+    targetKey: 'idModele',
     as: 'modele',
   });
 };

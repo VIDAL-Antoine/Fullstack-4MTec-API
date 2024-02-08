@@ -1,14 +1,14 @@
-import express, { Express, Response, Request } from 'express';
+import express, { Express } from 'express';
 import cors from 'cors';
-import type_appareils_routes from './routes/typeAppareils_routes';
-import modele_appareils_routes from './routes/modeleAppareils_routes';
-import appareils_routes from './routes/appareils_routes';
-import connexions_routes from './routes/connexions_routes';
+import type_appareils_routes from './routes/TypeAppareilRoutes';
+import modele_appareils_routes from './routes/ModeleAppareilRoutes';
+import appareils_routes from './routes/AppareilRoutes';
+import connexions_routes from './routes/ConnexionRoutes';
 import { port } from './config';
-import { initTypeAppareilModel } from './models/typeAppareil';
-import { initModeleAppareilModel } from './models/modeleAppareil';
-import { initAppareilModel } from './models/appareil';
-import { initConnexionModel } from './models/connexion';
+import { initTypeAppareilModel } from './models/TypeAppareilModel';
+import { initModeleAppareilModel } from './models/ModeleAppareilModel';
+import { initAppareilModel } from './models/AppareilModel';
+import { initConnexionModel } from './models/ConnexionModel';
 import Sequelize from './database';
 
 const app: Express = express();

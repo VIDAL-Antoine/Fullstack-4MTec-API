@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
-import TypeAppareil from '../models/typeAppareil.js';
-import { typeAppareilSchema } from '../schemas/typeAppareil_schema.js';
+import TypeAppareil from '../models/TypeAppareilModel.js';
+import { typeAppareilSchema } from '../schemas/TypeAppareilSchema.js';
 
 const router = express.Router();
 
@@ -14,48 +14,48 @@ const validateTypeAppareil = (req: Request, res: Response, next: Function) => {
 
 router.get('/', async (req: Request, res: Response) => {
   const { nomType } = req.query;
-  const filterOptions: any = {};
+  const optionsFiltre: any = {};
 
   if (nomType) {
-    filterOptions.nomType = nomType;
+    optionsFiltre.nomType = nomType;
   }
 
   try {
     const types = await TypeAppareil.findAll({
-      where: filterOptions,
+      where: optionsFiltre,
     });
 
     res.json(types);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.status(500).json({ error: 'Erreur interne au serveur' });
   }
 });
 
 router.get('/:id', async (req: Request, res: Response) => {
-  const typeId = req.params.id;
+  const idType = req.params.id;
 
   try {
-    const type = await TypeAppareil.findByPk(typeId);
+    const type = await TypeAppareil.findByPk(idType);
 
     if (!type) {
-      return res.status(404).json({ error: 'Type not found' });
+      return res.status(404).json({ error: 'Type non trouvé' });
     }
 
     res.json(type);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.status(500).json({ error: 'Erreur interne au serveur' });
   }
 });
 
 router.post('/', validateTypeAppareil, async (req: Request, res: Response) => {
   const { nomType } = req.body;
 
-  const existingType = await TypeAppareil.findOne({ where: { nomType }});
+  const typeExistant = await TypeAppareil.findOne({ where: { nomType }});
 
-  if (existingType) {
-    return res.status(400).json({ error: 'nomType already exists' });
+  if (typeExistant) {
+    return res.status(400).json({ error: 'Nom de type déjà utilisé' });
   }
 
   try {
@@ -63,50 +63,50 @@ router.post('/', validateTypeAppareil, async (req: Request, res: Response) => {
     res.status(201).json(newType);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.status(500).json({ error: 'Erreur interne au serveur' });
   }
 });
 
 router.put('/:id', validateTypeAppareil, async (req: Request, res: Response) => {
-  const typeId = req.params.id;
+  const idType = req.params.id;
   const { nomType } = req.body;
 
-  const existingType = await TypeAppareil.findOne({ where: { nomType }});
+  const typeExistant = await TypeAppareil.findOne({ where: { nomType }});
 
-  if (existingType) {
-    return res.status(400).json({ error: 'nomType already exists' });
+  if (typeExistant) {
+    return res.status(400).json({ error: 'Nom de type déjà utilisé' });
   }
 
   try {
-    const type = await TypeAppareil.findByPk(typeId);
+    const type = await TypeAppareil.findByPk(idType);
 
     if (!type) {
-      return res.status(404).json({ error: 'Type not found' });
+      return res.status(404).json({ error: 'Type non trouvé' });
     }
 
     await type.update({ nomType });
     res.json(type);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.status(500).json({ error: 'Erreur interne au serveur' });
   }
 });
 
 router.delete('/:id', async (req: Request, res: Response) => {
-  const typeId = req.params.id;
+  const idType = req.params.id;
 
   try {
-    const type = await TypeAppareil.findByPk(typeId);
+    const type = await TypeAppareil.findByPk(idType);
 
     if (!type) {
-      return res.status(404).json({ error: 'Type not found' });
+      return res.status(404).json({ error: 'Type non trouvé' });
     }
 
     await type.destroy();
-    res.json({ message: 'Type deleted successfully' });
+    res.json({ message: 'Type supprimé avec succès' });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.status(500).json({ error: 'Erreur interne au serveur' });
   }
 });
 
