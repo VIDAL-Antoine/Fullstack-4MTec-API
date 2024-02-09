@@ -4,7 +4,7 @@ const postConnexionSchema = Joi.object({
   idAppareilParent: Joi.number().integer().positive().required(),
   idAppareilEnfant: Joi.number().integer().positive().required(),
   dateDebut: Joi.date().iso().required(),
-  dateFin: Joi.date().iso().required(),
+  dateFin: Joi.date().iso(),
 });
 
 

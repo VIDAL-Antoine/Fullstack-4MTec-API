@@ -7,6 +7,67 @@ import { postAppareilSchema, putAppareilSchema } from '../schemas/AppareilSchema
 
 const router = express.Router();
 
+/**
+ * @api {get} /appareils Récupérer tous les appareils
+ * @apiVersion 0.1.0
+ * @apiName GetAppareils
+ * @apiGroup Appareils
+ *
+ * @apiParam {String} [adresseMAC] Adresse MAC de l'appareil.
+ * @apiParam {String="stock", "installé", "maintenance"} [etat] État de l'appareil.
+ * @apiParam {String} [nomModele] Nom du modèle de l'appareil.
+ * @apiParam {String} [nomType] Nom du type de l'appareil.
+ * @apiParam {Number} [idModeleAppareil] ID du modèle de l'appareil.
+ * @apiParam {Number} [idTypeAppareil] ID du type de l'appareil.
+ *
+ * @apiSuccess {Object[]} appareils Liste des appareils.
+ * @apiSuccess {Number} appareils.idAppareil ID de l'appareil.
+ * @apiSuccess {Number} appareils.idModeleAppareil ID du modèle de l'appareil.
+ * @apiSuccess {String} appareils.adresseMAC Adresse MAC de l'appareil.
+ * @apiSuccess {String} appareils.etat État de l'appareil.
+ * @apiSuccess {Object} appareils.modele Informations sur le modèle de l'appareil.
+ * @apiSuccess {Number} appareils.modele.idModele ID du modèle de l'appareil.
+ * @apiSuccess {String} appareils.modele.nomModele Nom du modèle de l'appareil.
+ * @apiSuccess {Number} appareils.modele.idTypeAppareil ID du type de l'appareil.
+ * @apiSuccess {Object} appareils.modele.type Informations sur le type de l'appareil.
+ * @apiSuccess {Number} appareils.modele.type.idType ID du type de l'appareil.
+ * @apiSuccess {String} appareils.modele.type.nomType Nom du type de l'appareil.
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     [{
+ *         "idAppareil": 1,
+ *         "idModeleAppareil": 1,
+ *         "adresseMAC": "11:22:33:44:55:66",
+ *         "etat": "installé",
+ *         "modele": {
+ *             "idModele": 1,
+ *             "nomModele": "Box OCP",
+ *             "idTypeAppareil": 1,
+ *             "type": {
+ *                 "idType": 1,
+ *                 "nomType": "Box"
+ *             }
+ *         }
+ *     },
+ *     {
+ *         "idAppareil": 4,
+ *         "idModeleAppareil": 4,
+ *         "adresseMAC": "11:22:33:44:55:99",
+ *         "etat": "maintenance",
+ *         "modele": {
+ *             "idModele": 4,
+ *             "nomModele": "Chaudière OCP Capri",
+ *             "idTypeAppareil": 3,
+ *             "type": {
+ *                 "idType": 3,
+ *                 "nomType": "Chaudière"
+ *             }
+ *         }
+ *     },
+ *     ]
+ * @apiError (Error 500) {Object} error Erreur interne au serveur.
+ */
 router.get('/', async (req: Request, res: Response) => {
   const { adresseMAC, etat, nomModele, nomType, idModeleAppareil, idTypeAppareil } = req.query;
   const optionsFiltre: any = {};
@@ -50,6 +111,48 @@ router.get('/', async (req: Request, res: Response) => {
   }
 });
 
+/**
+ * @api {get} /appareils/:id Récupérer un appareil par son ID
+ * @apiVersion 0.1.0
+ * @apiName GetAppareilById
+ * @apiGroup Appareils
+ *
+ * @apiParam {Number} id ID de l'appareil.
+ *
+ * @apiSuccess {Object} appareil Informations sur l'appareil.
+ * @apiSuccess {Number} appareil.idAppareil ID de l'appareil.
+ * @apiSuccess {Number} appareil.idModeleAppareil ID du modèle de l'appareil.
+ * @apiSuccess {String} appareil.adresseMAC Adresse MAC de l'appareil.
+ * @apiSuccess {String} appareil.etat État de l'appareil.
+ * @apiSuccess {Object} appareil.modele Informations sur le modèle de l'appareil.
+ * @apiSuccess {Number} appareil.modele.idModele ID du modèle de l'appareil.
+ * @apiSuccess {String} appareil.modele.nomModele Nom du modèle de l'appareil.
+ * @apiSuccess {Number} appareil.modele.idTypeAppareil ID du type de l'appareil.
+ * @apiSuccess {Object} appareil.modele.type Informations sur le type de l'appareil.
+ * @apiSuccess {Number} appareil.modele.type.idType ID du type de l'appareil.
+ * @apiSuccess {String} appareil.modele.type.nomType Nom du type de l'appareil.
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *         "idAppareil": 1,
+ *         "idModeleAppareil": 1,
+ *         "adresseMAC": "11:22:33:44:55:66",
+ *         "etat": "installé",
+ *         "modele": {
+ *             "idModele": 1,
+ *             "nomModele": "Box OCP",
+ *             "idTypeAppareil": 1,
+ *             "type": {
+ *                 "idType": 1,
+ *                 "nomType": "Box"
+ *             }
+ *         }
+ *     }
+ *
+ * @apiError (Error 404) {Object} error Appareil non trouvé.
+ * @apiError (Error 500) {Object} error Erreur interne au serveur.
+ */
 router.get('/:id', async (req: Request, res: Response) => {
   const idAppareil = req.params.id;
 
@@ -71,6 +174,35 @@ router.get('/:id', async (req: Request, res: Response) => {
   }
 });
 
+/**
+ * @api {post} /appareils Créer un nouvel appareil
+ * @apiVersion 0.1.0
+ * @apiName CreateAppareil
+ * @apiGroup Appareils
+ *
+ * @apiBody {String} adresseMAC Adresse MAC de l'appareil. Unique pour chaque appareil.
+ * @apiBody {Number} idModeleAppareil ID du modèle de l'appareil.
+ * @apiBody {String="stock", "installé", "maintenance"} etat="stock" Nouvel état de l'appareil.
+ *
+ * @apiSuccess {Number} idAppareil ID de l'appareil créé.
+ * @apiSuccess {String} adresseMAC Adresse MAC de l'appareil créé.
+ * @apiSuccess {Number} idModeleAppareil ID du modèle de l'appareil créé.
+ * @apiSuccess {String} etat État de l'appareil créé.
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 201 Created
+ *     {
+ *         "idAppareil": 8,
+ *         "adresseMAC": "55:55:55:55:55:55"
+ *         "idModeleAppareil": 5,
+ *         "etat": "stock",
+ *     }
+ *
+ * @apiError (Error 400) {String} error Données invalides.
+ * @apiError (Error 404) {String} error ID Modèle non trouvé.
+ * @apiError (Error 409) {String} error Adresse MAC déjà utilisée.
+ * @apiError (Error 500) {String} error Erreur interne au serveur.
+ */
 router.post('/', async (req: Request, res: Response) => {
   const { idModeleAppareil, adresseMAC, etat } = req.body;
 
@@ -106,6 +238,37 @@ router.post('/', async (req: Request, res: Response) => {
   }
 });
 
+/**
+ * @api {put} /appareils/:id Mettre à jour un appareil
+ * @apiVersion 0.1.0
+ * @apiName UpdateAppareil
+ * @apiGroup Appareils
+ *
+ * @apiParam {Number} id ID de l'appareil à mettre à jour.
+ * @apiBody {String} [adresseMAC] Nouvelle adresse MAC de l'appareil. Unique pour chaque appareil.
+ * @apiBody {Number} [idModeleAppareil] Nouvel ID du modèle de l'appareil.
+ * @apiBody {String="stock", "installé", "maintenance"} [etat] Nouvel état de l'appareil.
+ *
+ * @apiSuccess {Number} idAppareil ID de l'appareil mis à jour.
+ * @apiSuccess {String} adresseMAC Adresse MAC de l'appareil mise à jour.
+ * @apiSuccess {Number} idModeleAppareil ID du modèle de l'appareil mis à jour.
+ * @apiSuccess {String} etat État de l'appareil mis à jour.
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *         "idAppareil": 8,
+ *         "adresseMAC": "55:55:55:55:55:55"
+ *         "idModeleAppareil": 5,
+ *         "etat": "stock",
+ *     }
+ *
+ * @apiError (Error 400) {String} error Données invalides.
+ * @apiError (Error 404) {String} error ID Modèle non trouvé.
+ * @apiError (Error 404) {String} error Appareil non trouvé.
+ * @apiError (Error 409) {String} error Adresse MAC déjà utilisée.
+ * @apiError (Error 500) {String} error Erreur interne au serveur.
+ */
 router.put('/:id', async (req: Request, res: Response) => {
   const idAppareil = req.params.id;
   const { idModeleAppareil, adresseMAC, etat } = req.body;
@@ -152,6 +315,25 @@ router.put('/:id', async (req: Request, res: Response) => {
   }
 });
 
+/**
+ * @api {delete} /appareils/:id Supprimer un appareil
+ * @apiVersion 0.1.0
+ * @apiName DeleteAppareil
+ * @apiGroup Appareils
+ *
+ * @apiParam {Number} id ID de l'appareil à supprimer.
+ *
+ * @apiSuccess {String} message Appareil supprimé avec succès.
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *         "message": "Appareil supprimé avec succès"
+ *     }
+ *
+ * @apiError (Error 404) {String} error Appareil non trouvé.
+ * @apiError (Error 500) {String} error Erreur interne au serveur.
+ */
 router.delete('/:id', async (req: Request, res: Response) => {
   const idAppareil = req.params.id;
 
