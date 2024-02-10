@@ -1,4 +1,9 @@
-CREATE DATABASE appareils_4mtec;
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT FROM pg_database WHERE datname = 'appareils_4mtec') THEN
+        CREATE DATABASE your_database_name;
+    END IF;
+END $$;
 
 \c appareils_4mtec;
 
