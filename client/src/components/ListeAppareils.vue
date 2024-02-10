@@ -237,9 +237,9 @@ export default defineComponent({
       this.connexions = connexionsResponse.data;
       this.connexions.sort((a, b) => a.idConnexion - b.idConnexion);
       this.chargerOptionsNomModele();
-      this.chargerAdressesMAC();
+      this.chargerAdressesMACInstallees();
     } catch (error) {
-      console.error('Erreur lors de la récupération des appareils:', error);
+      console.error('Erreur lors de la récupération des données:', error);
     }
   },
   methods: {
@@ -255,7 +255,7 @@ export default defineComponent({
       }
     },
 
-    async chargerAdressesMAC() {
+    async chargerAdressesMACInstallees() {
       try {
         const response = await axios.get(`${API_BASE_URL}/appareils`);
         this.adressesMACInstallees = response.data
@@ -303,7 +303,7 @@ export default defineComponent({
         const appareilAjoute = responseAppareilAjoute.data;
         this.appareils.push(appareilAjoute);
         this.appareils.sort((a, b) => a.idAppareil - b.idAppareil);
-        this.chargerAdressesMAC();
+        this.chargerAdressesMACInstallees();
 
         this.idModeleSelectionne = 0;
         this.adresseMAC = '';
@@ -335,7 +335,7 @@ export default defineComponent({
         await axios.put(`${API_BASE_URL}/appareils/${appareil.idAppareil}`, {
           etat: etatSuivant,
         });
-        this.chargerAdressesMAC();
+        this.chargerAdressesMACInstallees();
       } catch (error) {
         console.error('Erreur lors du changement de l\'état de l\'appareil:', error);
       }
@@ -348,7 +348,7 @@ export default defineComponent({
         this.appareils.sort((a, b) => a.idAppareil - b.idAppareil);
         alert("Appareil supprimé avec succès.")
         this.chargerOptionsNomModele();
-        this.chargerAdressesMAC();
+        this.chargerAdressesMACInstallees();
       } catch (error) {
         console.error('Erreur lors de la suppression de l\'appareil:', error);
       }
