@@ -229,6 +229,7 @@ export default defineComponent({
 
   async mounted() {
     try {
+      axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('token')}`;
       const appareilsResponse = await axios.get(`${API_BASE_URL}/appareils`);
       this.appareils = appareilsResponse.data;
       this.appareils.sort((a, b) => a.idAppareil - b.idAppareil);

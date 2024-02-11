@@ -10,14 +10,26 @@ import { initModeleAppareilModel } from './models/ModeleAppareilModel';
 import { initAppareilModel } from './models/AppareilModel';
 import { initConnexionModel } from './models/ConnexionModel';
 import Sequelize from './database';
+import { verifyToken } from './middlewares/verifyToken';
+import { initUserModel } from './models/UserModel';
+import login_route from './routes/LoginRoute';
+import sign_up_route from './routes/SignUpRoute';
+import users_routes from './routes/UserRoutes';
 
 const app: Express = express();
 app.use(cors());
 app.use(express.json());
+
+initUserModel(Sequelize);
+app.use('/signup', sign_up_route);
+app.use('/login', login_route);
+app.use(verifyToken);
+
 app.use('/type-appareils', type_appareils_routes);
 app.use('/modele-appareils', modele_appareils_routes);
 app.use('/appareils', appareils_routes);
 app.use('/connexions', connexions_routes);
+app.use('/users', users_routes);
 
 initTypeAppareilModel(Sequelize);
 initModeleAppareilModel(Sequelize);

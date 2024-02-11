@@ -15,9 +15,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/bcrypt": "^5.0.2",
     "@types/dotenv": "^8.2.0",
     "@types/node": "^20.11.16",
     "apidoc": "^1.2.0",
+    "bcrypt": "^5.1.1",
     "concurrently": "^8.2.2",
     "cors": "^2.8.5",
     "dotenv": "^16.4.1",
