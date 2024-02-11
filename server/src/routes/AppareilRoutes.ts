@@ -180,9 +180,9 @@ router.get('/:id', async (req: Request, res: Response) => {
  * @apiName CreateAppareil
  * @apiGroup Appareils
  *
- * @apiBody {String} adresseMAC Adresse MAC de l'appareil. Unique pour chaque appareil.
+ * @apiBody {String} adresseMAC Adresse MAC de l'appareil. Unique pour chaque appareil. Doit être sous la forme XX:XX:XX:XX:XX:XX (avec X entre 0 et F).
  * @apiBody {Number} idModeleAppareil ID du modèle de l'appareil.
- * @apiBody {String="stock", "installé", "maintenance"} etat="stock" Nouvel état de l'appareil.
+ * @apiBody {String="stock", "installé", "maintenance"} etat="stock" Nouvel état de l'appareil (par défaut à "stock").
  *
  * @apiSuccess {Number} idAppareil ID de l'appareil créé.
  * @apiSuccess {String} adresseMAC Adresse MAC de l'appareil créé.
