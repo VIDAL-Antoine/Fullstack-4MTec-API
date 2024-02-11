@@ -15,6 +15,7 @@ import { initUserModel } from './models/UserModel';
 import login_route from './routes/LoginRoute';
 import sign_up_route from './routes/SignUpRoute';
 import users_routes from './routes/UserRoutes';
+import revoke_token_route from './routes/RevokeTokenRoute';
 
 const app: Express = express();
 app.use(cors());
@@ -25,6 +26,7 @@ app.use('/signup', sign_up_route);
 app.use('/login', login_route);
 app.use(verifyToken);
 
+app.use('/revoke-token', revoke_token_route);
 app.use('/type-appareils', type_appareils_routes);
 app.use('/modele-appareils', modele_appareils_routes);
 app.use('/appareils', appareils_routes);
