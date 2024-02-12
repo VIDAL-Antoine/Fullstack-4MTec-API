@@ -37,8 +37,8 @@
         </v-toolbar>
       </template>
       <template v-slot:[`item.actions`]="{ item }">
-        <v-icon small class="mr-2" @click="changerEtatAppareil(item)">mdi-power-plug</v-icon>
-        <v-icon small @click="supprimerAppareil(item.idAppareil)">mdi-delete</v-icon>
+        <v-icon small class="mr-2" @click="changerEtatAppareil(item)" title="Changer état">mdi-power-plug</v-icon>
+        <v-icon small @click="supprimerAppareil(item.idAppareil)" title="Supprimer">mdi-delete</v-icon>
       </template>
     </v-data-table>
 
@@ -85,7 +85,7 @@
         <v-divider class="mx-3" inset vertical></v-divider>
       </template>
       <template v-slot:[`item.actions`]="{ item }">
-        <v-icon small @click="supprimerConnexion(item.idConnexion)">mdi-delete</v-icon>
+        <v-icon small @click="supprimerConnexion(item.idConnexion)" title="Supprimer">mdi-delete</v-icon>
       </template>
     </v-data-table>
   </div>

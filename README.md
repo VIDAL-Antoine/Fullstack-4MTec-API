@@ -98,7 +98,7 @@ Une fois que le fichier `./server/.env` est créé et que les variables importan
 
 Pour les personnes ne disposant pas de Docker Compose ou souhaitant développer localement, il est possible de lancer les applications manuellement.
 
-1. Assurez-vous que le fichier `./server/.env` est bien configuré, notamment la valeur `POSTGRES_HOST` qui doit être à `localhost`.
+1. Assurez-vous que le fichier `./server/.env` est bien configuré, notamment la valeur `POSTGRES_HOST` qui doit être à `localhost` et que vous avez généré une clé secrète pour `JWT_SECRET_KEY`.
 2. Installer les dépendances pour le client : `cd client && npm install`
 3. Installer les dépendances pour le serveur : `cd server && npm install`
 4. Lancer le client avec `cd client && npm run serve` (qui sera disponible sur `http://localhost:8080`) et le serveur (sur un autre terminal) avec `cd server && npm run serve` (qui sera disponible sur `http://localhost:3000` mais sera inaccessible car vous n'êtes pas encore authentifié)
@@ -154,7 +154,23 @@ curl -X GET -H "Authorization: Bearer <token JWT>" http://localhost:3000/apparei
 
 Si la requête renvoie bien une liste d'appareils alors vous êtes bien authentifié sur l'API. Vous pouvez consulter la documentation de l'API (qui se trouve dans le dossier `server/apidoc/index.html`) pour voir les différentes requêtes et actions possibles.
 
-# Documentation de l'API
+# Guide d'utilisation de l'interface web (Frontend)
+
+Une fois que vous êtes connecté sur votre navigateur (sur `http://localhost:8080/appareils`), vous pouvez manipuler les données. Elles sont constituées de deux tableaux : les appareils et les connexions (triée par défaut par ordre décroissant de date de fin puis de date de début). Ces tableaux permettent de trier par ordre croissant ou décroissant selon l'attribut de son choix.
+
+## Explication des icônes
+
+Pour les appareils, vous pouvez changer leur état en cliquant sur l'icône en forme de prise électrique ou les supprimer en cliquant sur l'icône en forme de poubelle. Pour les connexions vous pouvez les supprimer en cliquant également sur l'icône en forme de poubelle.
+
+## Fonctionnement des filtres
+
+Différents filtres sont disponibles pour afficher uniquement les données souhaitées, que cela soit pour les appareils ou les connexions. Les filtres fonctionnent en vérifiant si les données commencent par la valeur spécifiée (ou le texte saisi), plutôt que de rechercher une correspondance exacte.
+
+## Création de nouvelles données
+
+Vous pouvez également ajouter des appareils ou des connexions via les boutons adéquats (pour connecter deux appareils ils doivent être tous les deux à l'état "installé"). Remplissez ensuite les formulaires avec les données correctes pour sauvegarder les données saisies.
+
+# Documentation de l'API (Backend)
 
 La documentation de l'API est générée automatiquement à l'aide de `apidoc`. Pour consulter la documentation, ouvrez le fichier `server/apidoc/index.html` dans un navigateur web. Elle permet de comprendre comment utiliser l'API, notamment comment obtenir l'accès en y créant un utilisateur.
 
@@ -162,7 +178,7 @@ La documentation de l'API est générée automatiquement à l'aide de `apidoc`. 
 
 ## Expiration des tokens
 
-Ici la sécurité de l'API est implémentée avec les tokens JWT. Toutefois les tokens ont une durée de vie d'une heure. Au-delà d'une heure, vous devrez vous reconnecter (se rendre sur `http://localhost:3000/login` côté backend et `http://localhost:8080/login` côté frontend) pour vous réauthentifier.
+Ici la sécurité de l'API est implémentée avec les tokens JWT. Toutefois les tokens ont une durée de vie d'une heure. Au-delà d'une heure, vous devrez vous reconnecter (se rendre sur `http://localhost:3000/login` côté backend ou `http://localhost:8080/login` côté frontend) pour vous réauthentifier.
 
 ## Révocations de tokens
 
@@ -211,7 +227,7 @@ La liste des tokens révoqués est non persistante, ce qui signifie qu'elle n'es
 # Notes Supplémentaires
 
 - Assurez-vous que les ports nécessaires (par exemple, 8080 pour le client et 3000 pour le serveur) ne sont pas utilisés par d'autres applications sur votre machine.
-- Il peut être nécessaire de stopper le service PostgreSQL pour permettre à Docker d'initialiser un conteneur PostgreSQL. Ceci peut se faire avec la commande : `sudo service postgresql stop`.
+- Il peut être nécessaire de stopper le service PostgreSQL pour permettre à Docker d'initialiser un conteneur PostgreSQL. Ceci peut se faire avec la commande : `sudo service postgresql stop`. `sudo service postgresql start` permet de démarrer le service si nécessaire.
 
 # Crédits
 
