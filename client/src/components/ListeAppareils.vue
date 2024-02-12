@@ -155,6 +155,7 @@ export default defineComponent({
       ],
       appareilDialog: false,
       connexionDialog: false,
+      errorMessage: '',
     };
   },
   computed: {
@@ -240,7 +241,17 @@ export default defineComponent({
       this.chargerOptionsNomModele();
       this.chargerAdressesMACInstallees();
     } catch (error) {
-      console.error('Erreur lors de la récupération des données:', error);
+      console.error('Erreur lors de la récupération des données :', error);
+      if (axios.isAxiosError(error)) {
+        if (error.response && error.response.data && error.response.data.error) {
+          this.errorMessage = error.response.data.error;
+        } else {
+          this.errorMessage = 'Erreur lors de la récupération des données';
+        }
+      } else {
+        this.errorMessage = 'Erreur lors de la récupération des données';
+      }
+      alert(this.errorMessage);
     }
   },
   methods: {
@@ -252,7 +263,17 @@ export default defineComponent({
           text: modele.nomModele,
         }));
       } catch (error) {
-        console.error('Erreur lors du chargement des noms de modèle:', error);
+        console.error('Erreur lors du chargement des données :', error);
+        if (axios.isAxiosError(error)) {
+          if (error.response && error.response.data && error.response.data.error) {
+            this.errorMessage = error.response.data.error;
+          } else {
+            this.errorMessage = 'Erreur lors du chargement des données';
+          }
+        } else {
+          this.errorMessage = 'Erreur lors du chargement des données';
+        }
+        alert(this.errorMessage);
       }
     },
 
@@ -268,7 +289,17 @@ export default defineComponent({
           }));
         this.adressesMACInstallees = this.adressesMACInstallees.sort((a, b) => a.text.localeCompare(b.text));
       } catch (error) {
-        console.error('Erreur lors du chargement des adresses MAC:', error);
+        console.error('Erreur lors du chargement des modèles :', error);
+        if (axios.isAxiosError(error)) {
+          if (error.response && error.response.data && error.response.data.error) {
+            this.errorMessage = error.response.data.error;
+          } else {
+            this.errorMessage = 'Erreur lors du chargement des modèles';
+          }
+        } else {
+          this.errorMessage = 'Erreur lors du chargement des modèles';
+        }
+        alert(this.errorMessage);
       }
     },
 
@@ -283,12 +314,6 @@ export default defineComponent({
 
         if (!adresseMAC) {
           alert("Vérifiez que l'adresse MAC n'est pas vide.");
-          return;
-        }
-
-        const appareilExistant = this.appareils.find(appareil => appareil.adresseMAC.toLowerCase() === adresseMAC.toLowerCase());
-        if (appareilExistant) {
-          alert("L'adresse MAC est déjà utilisée. Veuillez saisir une adresse MAC unique.");
           return;
         }
 
@@ -312,8 +337,17 @@ export default defineComponent({
         alert("Appareil ajouté avec succès!");
         this.appareilDialog = false;
       } catch (error) {
-        console.error('Erreur lors de l\'ajout de l\'appareil:', error);
-        alert("Une erreur s'est produite lors de la création de l'appareil. Veuillez réessayer en vérifiant notamment l'adresse MAC.");
+        console.error('Erreur lors la création de l\'appareil:', error);
+        if (axios.isAxiosError(error)) {
+          if (error.response && error.response.data && error.response.data.error) {
+            this.errorMessage = error.response.data.error;
+          } else {
+            this.errorMessage = 'Erreur lors de la création de l\'appareil';
+          }
+        } else {
+          this.errorMessage = 'Erreur lors de la création de l\'appareil';
+        }
+        alert(this.errorMessage);
       }
     },
 
@@ -339,6 +373,16 @@ export default defineComponent({
         this.chargerAdressesMACInstallees();
       } catch (error) {
         console.error('Erreur lors du changement de l\'état de l\'appareil:', error);
+        if (axios.isAxiosError(error)) {
+          if (error.response && error.response.data && error.response.data.error) {
+            this.errorMessage = error.response.data.error;
+          } else {
+            this.errorMessage = 'Erreur lors du changement d\'état de l\'appareil';
+          }
+        } else {
+          this.errorMessage = 'Erreur lors du changement d\'état de l\'appareil';
+        }
+        alert(this.errorMessage);
       }
     },
 
@@ -351,7 +395,17 @@ export default defineComponent({
         this.chargerOptionsNomModele();
         this.chargerAdressesMACInstallees();
       } catch (error) {
-        console.error('Erreur lors de la suppression de l\'appareil:', error);
+        console.error('Erreur lors la suppression de l\'appareil :', error);
+        if (axios.isAxiosError(error)) {
+          if (error.response && error.response.data && error.response.data.error) {
+            this.errorMessage = error.response.data.error;
+          } else {
+            this.errorMessage = 'Erreur lors la suppression de l\'appareil';
+          }
+        } else {
+          this.errorMessage = 'Erreur lors la suppression de l\'appareil';
+        }
+        alert(this.errorMessage);
       }
     },
 
@@ -364,11 +418,6 @@ export default defineComponent({
 
       if (!MACEnfantSelectionne || !MACParentSelectionne) {
         alert("Vérifiez que l'adresse MAC du parent ou de l'enfant n'est pas vide.");
-        return;
-      }
-
-      if (MACParentSelectionne === MACEnfantSelectionne) {
-        alert("L'adresse MAC de l'enfant ne peut pas être la même que celle du parent.");
         return;
       }
 
@@ -391,8 +440,17 @@ export default defineComponent({
         alert("Appareils connectés avec succès!");
         this.connexionDialog = false;
       } catch (error) {
-        console.error('Erreur lors de la connexion des appareils:', error);
-        alert("Une erreur s'est produite lors de la connexion des appareils. Veuillez réessayer en vérifiant que les dates ne se chevauchent pas pour l'appareil enfant.");
+        console.error('Erreur lors de la connexion des appareils :', error);
+        if (axios.isAxiosError(error)) {
+          if (error.response && error.response.data && error.response.data.error) {
+            this.errorMessage = error.response.data.error;
+          } else {
+            this.errorMessage = 'Erreur lors de la connexions des appareils';
+          }
+        } else {
+          this.errorMessage = 'Erreur lors de la connexion des appareils';
+        }
+        alert(this.errorMessage);
       }
     },
 
@@ -453,8 +511,17 @@ export default defineComponent({
           }
         }
       } catch (error) {
-        console.error('Erreur lors de la déconnexion des appareils:', error);
-        alert("Une erreur s'est produite lors de la déconnexion des appareils. Veuillez réessayer.");
+        console.error('Erreur lors de la déconnexion des appareils :', error);
+        if (axios.isAxiosError(error)) {
+          if (error.response && error.response.data && error.response.data.error) {
+            this.errorMessage = error.response.data.error;
+          } else {
+            this.errorMessage = 'Erreur lors de la déconnexion des apapreils';
+          }
+        } else {
+          this.errorMessage = 'Erreur lors de la déconnexion des appareils';
+        }
+        alert(this.errorMessage);
       }
     },
 
@@ -464,8 +531,17 @@ export default defineComponent({
         this.connexions = this.connexions.filter(connexion => connexion.idConnexion !== idConnexion);
         alert("Connexion supprimée avec succès.");
       } catch (error) {
-        console.error('Erreur lors de la suppression de la connexion:', error);
-        alert("Une erreur s'est produite lors de la suppression de la connexion. Veuillez réessayer.");
+        console.error('Erreur lors de la suppression de la connexion :', error);
+        if (axios.isAxiosError(error)) {
+          if (error.response && error.response.data && error.response.data.error) {
+            this.errorMessage = error.response.data.error;
+          } else {
+            this.errorMessage = 'Erreur lors de la suppression de la connexion';
+          }
+        } else {
+          this.errorMessage = 'Erreur lors de la suppression de la connexion';
+        }
+        alert(this.errorMessage);
       }
     },
 
