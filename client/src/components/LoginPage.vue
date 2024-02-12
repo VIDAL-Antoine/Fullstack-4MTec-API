@@ -34,37 +34,36 @@ export default defineComponent({
      password: '',
      errorMessage: '',
    }),
-
+   mounted() {
+    if (this.$route.path === '/login' && localStorage.getItem('token')) {
+      this.$router.push('/appareils');
+    }
+  },
    methods: {
       async login() {
-        if (localStorage.getItem('token')) {
-            alert("Vous êtes déjà connecté!");
-            return;
-        }
-        try {
-          const response = await axios.post(`${API_BASE_URL}/login`, {
+         try {
+            const response = await axios.post(`${API_BASE_URL}/login`, {
               username: this.username,
               password: this.password
-          });
-          console.log(response.data.message);
-          this.username = '';
-          this.password = '';
-          localStorage.setItem('token', response.data.token);
-          alert("Login effectué avec succès! Redirection vers la liste des appareils.")
-          this.$router.push("/appareils");
-          window.location.reload();
-        } catch (error) {
-          console.error('Erreur lors du login :', error);
-          if (axios.isAxiosError(error)) {
-                if (error.response && error.response.data && error.response.data.message) {
-                    this.errorMessage = error.response.data.message;
-                } else {
-                    this.errorMessage = 'Une erreur s\'est produite lors de la création du compte';
-                }
-          } else {
-                this.errorMessage = 'Une erreur s\'est produite lors de la création du compte';
+            });
+            this.username = '';
+            this.password = '';
+            localStorage.setItem('token', response.data.token);
+            alert("Login effectué avec succès! Redirection vers la liste des appareils.")
+            this.$router.push("/appareils");
+            window.location.reload();
+          } catch (error) {
+            console.error('Erreur lors du login :', error);
+            if (axios.isAxiosError(error)) {
+              if (error.response && error.response.data && error.response.data.error) {
+                this.errorMessage = error.response.data.error;
+              } else {
+               this.errorMessage = 'Une erreur s\'est produite lors de la connexion';
+              }
+            } else {
+              this.errorMessage = 'Une erreur s\'est produite lors de la connexion';
+            }
           }
-        }
       },
    }
  });

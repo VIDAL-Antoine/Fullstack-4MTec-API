@@ -2,6 +2,7 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 import User from '../models/UserModel';
 import { jwt_secret_key } from '../config';
+import { postUserSchema } from '../schemas/UserSchema';
 
 const router = express.Router();
 
@@ -9,7 +10,7 @@ const router = express.Router();
  * @api {post} /login Se connecter à l'API pour pouvoir l'utiliser
  * @apiVersion 0.1.0
  * @apiName LoginUser
- * @apiGroup Utilisateurs
+ * @apiGroup Authentification
  *
  * @apiBody {String} username Nom de l'utilisateur.
  * @apiBody {String} password Mot de passe.
@@ -27,24 +28,29 @@ const router = express.Router();
  */
 router.post('/', async (req, res) => {
   const { username, password } = req.body;
-
+  
+  const { error } = postUserSchema.validate(req.body);
+  if (error) {
+    return res.status(400).json({ error: error.details[0].message });
+  }
+  
   try {
     const user = await User.findOne({ where: { username } });
 
     if (!user) {
-      return res.status(401).json({ message: "Le username n'existe pas" });
+      return res.status(401).json({ error: "Le username n'existe pas" });
     }
 
     const passwordMatch = await user.checkPassword(password);
     if (!passwordMatch) {
-      return res.status(401).json({ message: 'Mot de passe incorrect' });
+      return res.status(401).json({ error: 'Mot de passe incorrect' });
     }
 
     const token = jwt.sign({ userId: user.id }, jwt_secret_key, { expiresIn: '1h' });
     res.json({ token });
   } catch (error) {
     console.error('Erreur lors de la connexion:', error);
-    res.status(500).json({ message: 'Erreur lors de la connexion' });
+    res.status(500).json({ error: 'Erreur lors de la connexion' });
   }
 });
 

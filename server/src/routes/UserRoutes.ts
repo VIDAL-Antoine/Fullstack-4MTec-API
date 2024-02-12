@@ -10,6 +10,8 @@ const router = express.Router();
  * @apiName GetUsers
  * @apiGroup Utilisateurs
  *
+ * @apiHeader Authorization Bearer 'token JWT'. Token nécessaire à l'authentification.
+ * 
  * @apiSuccess {Object[]} users Liste des utilisateurs.
  * @apiSuccess {Number} id ID de l'utilisateur.
  * @apiSuccess {String} username Nom d'utilisateur.
@@ -48,6 +50,8 @@ router.get('/', async (req: Request, res: Response) => {
  * @apiVersion 0.1.0
  * @apiName GetUserById
  * @apiGroup Utilisateurs
+ *
+ * @apiHeader Authorization Bearer 'token JWT'. Token nécessaire à l'authentification.
  * 
  * @apiParam {Number} id ID de l'utilisateur à récupérer.
  * 
@@ -89,6 +93,8 @@ router.get('/:id', async (req: Request, res: Response) => {
  * @apiName CreateUser
  * @apiGroup Utilisateurs
  *
+ * @apiHeader Authorization Bearer 'token JWT'. Token nécessaire à l'authentification.
+ * 
  * @apiBody {String} username Nom de l'utilisateur à créer.
  * @apiBody {String} password Mot de passe de l'utilisateur à créer.
  * 
@@ -116,26 +122,26 @@ router.post('/', async (req, res) => {
   }
 
   if (!username || username.trim() === '') {
-    return res.status(400).json({ message: 'Le nom d\'utilisateur est vide' });
+    return res.status(400).json({ error: 'Le nom d\'utilisateur est vide' });
   }
 
   if (!password || password.trim() === '') {
-    return res.status(400).json({ message: 'Le mot de passe est vide' });
+    return res.status(400).json({ error: 'Le mot de passe est vide' });
   }
 
   try {
     const existingUser = await User.findOne({ where: { username } });
     if (existingUser) {
-      return res.status(400).json({ message: 'Nom d\'utilisateur déjà pris' });
+      return res.status(400).json({ error: 'Nom d\'utilisateur déjà pris' });
     }
 
     const hashedPassword = await User.hashPassword(password);
 
     const newUser = await User.create({ username, password: hashedPassword });
-    res.status(201).json({ message: 'Utilisateur créé avec succès', user: newUser });
+    res.status(201).json(newUser);
   } catch (error) {
     console.error('Erreur lors de la création de l\'utilisateur:', error);
-    res.status(500).json({ message: 'Erreur lors de la création de l\'utilisateur' });
+    res.status(500).json({ error: 'Erreur lors de la création de l\'utilisateur' });
   }
 });
 
@@ -145,6 +151,8 @@ router.post('/', async (req, res) => {
  * @apiName UpdateUser
  * @apiGroup Utilisateurs
  *
+ * @apiHeader Authorization Bearer 'token JWT'. Token nécessaire à l'authentification.
+ * 
  * @apiParam {Number} id ID de l'utilisateur à mettre à jour.
  * @apiBody {String} [username] Nouveau nom de l'utilisateur.
  * @apiBody {String} [password] Nouveau mot de passe de l'utilisateur.
@@ -210,6 +218,8 @@ router.put('/:id', async (req: Request, res: Response) => {
  * @apiName DeleteUser
  * @apiGroup Utilisateurs
  *
+ * @apiHeader Authorization Bearer 'token JWT'. Token nécessaire à l'authentification.
+ * 
  * @apiParam {Number} id ID de l'utilisateur à supprimer.
  *
  * @apiSuccess {String} message User supprimé avec succès.

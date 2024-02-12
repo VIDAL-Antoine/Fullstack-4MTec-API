@@ -13,6 +13,8 @@ const router = express.Router();
  * @apiName GetAppareils
  * @apiGroup Appareils
  *
+ * @apiHeader Authorization Bearer 'token JWT'. Token nécessaire à l'authentification.
+ *
  * @apiParam {String} [adresseMAC] Adresse MAC de l'appareil.
  * @apiParam {String="stock", "installé", "maintenance"} [etat] État de l'appareil.
  * @apiParam {String} [nomModele] Nom du modèle de l'appareil.
@@ -117,6 +119,8 @@ router.get('/', async (req: Request, res: Response) => {
  * @apiName GetAppareilById
  * @apiGroup Appareils
  *
+ * @apiHeader Authorization Bearer 'token JWT'. Token nécessaire à l'authentification.
+ *
  * @apiParam {Number} id ID de l'appareil.
  *
  * @apiSuccess {Object} appareil Informations sur l'appareil.
@@ -179,6 +183,8 @@ router.get('/:id', async (req: Request, res: Response) => {
  * @apiVersion 0.1.0
  * @apiName CreateAppareil
  * @apiGroup Appareils
+ *
+ * @apiHeader Authorization Bearer 'token JWT'. Token nécessaire à l'authentification.
  *
  * @apiBody {String} adresseMAC Adresse MAC de l'appareil. Unique pour chaque appareil. Doit être sous la forme XX:XX:XX:XX:XX:XX (avec X entre 0 et F).
  * @apiBody {Number} idModeleAppareil ID du modèle de l'appareil.
@@ -243,6 +249,8 @@ router.post('/', async (req: Request, res: Response) => {
  * @apiVersion 0.1.0
  * @apiName UpdateAppareil
  * @apiGroup Appareils
+ *
+ * @apiHeader Authorization Bearer 'token JWT'. Token nécessaire à l'authentification.
  *
  * @apiParam {Number} id ID de l'appareil à mettre à jour.
  * @apiBody {String} [adresseMAC] Nouvelle adresse MAC de l'appareil. Unique pour chaque appareil.
@@ -320,6 +328,8 @@ router.put('/:id', async (req: Request, res: Response) => {
  * @apiVersion 0.1.0
  * @apiName DeleteAppareil
  * @apiGroup Appareils
+ *
+ * @apiHeader Authorization Bearer 'token JWT'. Token nécessaire à l'authentification.
  *
  * @apiParam {Number} id ID de l'appareil à supprimer.
  *

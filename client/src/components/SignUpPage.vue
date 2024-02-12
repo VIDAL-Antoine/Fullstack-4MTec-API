@@ -35,7 +35,11 @@ export default defineComponent({
     password: '',
     errorMessage: '',
   }),
-
+  mounted() {
+    if (this.$route.path === '/signup' && localStorage.getItem('token')) {
+      this.$router.push('/appareils');
+    }
+  },
   methods: {
    async signup() {
       try {
@@ -50,16 +54,16 @@ export default defineComponent({
          alert("Utilisateur créé avec succès! Veuillez vous login.");
          this.$router.push("/login");
       } catch (error) {
-         console.error('Erreur lors du signup :', error);
-         if (axios.isAxiosError(error)) {
-               if (error.response && error.response.data && error.response.data.message) {
-                  this.errorMessage = error.response.data.message;
-               } else {
+        console.error('Erreur lors du signup :', error);
+        if (axios.isAxiosError(error)) {
+              if (error.response && error.response.data && error.response.data.error) {
+                  this.errorMessage = error.response.data.error;
+              } else {
                   this.errorMessage = 'Une erreur s\'est produite lors de la création du compte';
-               }
-         } else {
-               this.errorMessage = 'Une erreur s\'est produite lors de la création du compte';
-         }
+              }
+        } else {
+              this.errorMessage = 'Une erreur s\'est produite lors de la création du compte';
+        }
       }
    },
   }

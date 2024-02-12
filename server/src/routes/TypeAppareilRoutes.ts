@@ -18,8 +18,9 @@ const validateTypeAppareil = (req: Request, res: Response, next: Function) => {
  * @apiName GetTypesAppareils
  * @apiGroup TypeAppareil
  *
- * @apiParam {String} [nomType] Nom du type d'appareil à filtrer.
+ * @apiHeader Authorization Bearer 'token JWT'. Token nécessaire à l'authentification.
  * 
+ * @apiParam {String} [nomType] Nom du type d'appareil à filtrer. 
  *
  * @apiSuccess {Object[]} types Liste des types d'appareils.
  * @apiSuccess {Number} idType ID du type d'appareil.
@@ -66,6 +67,8 @@ router.get('/', async (req: Request, res: Response) => {
  * @apiName GetTypeAppareilById
  * @apiGroup TypeAppareil
  *
+ * @apiHeader Authorization Bearer 'token JWT'. Token nécessaire à l'authentification.
+ * 
  * @apiParam {Number} id ID du type d'appareil à récupérer.
  * 
  * @apiSuccess {Number} idType ID du type d'appareil.
@@ -104,6 +107,8 @@ router.get('/:id', async (req: Request, res: Response) => {
  * @apiName CreateTypeAppareil
  * @apiGroup TypeAppareil
  *
+ * @apiHeader Authorization Bearer 'token JWT'. Token nécessaire à l'authentification.
+ * 
  * @apiBody {String} nomType Nom du type d'appareil à créer.
  *
  * @apiSuccess {Number} idType ID du type d'appareil créé.
@@ -142,7 +147,9 @@ router.post('/', validateTypeAppareil, async (req: Request, res: Response) => {
  * @apiVersion 0.1.0
  * @apiName UpdateTypeAppareil
  * @apiGroup TypeAppareil
- *
+ * *
+ * @apiHeader Authorization Bearer 'token JWT'. Token nécessaire à l'authentification.
+ * 
  * @apiParam {Number} id ID du type d'appareil à mettre à jour.
  * @apiBody {String} [nomType] Nouveau nom du type d'appareil.
  *
@@ -190,7 +197,9 @@ router.put('/:id', validateTypeAppareil, async (req: Request, res: Response) => 
  * @apiVersion 0.1.0
  * @apiName DeleteTypeAppareil
  * @apiGroup TypeAppareil
- *
+ * *
+ * @apiHeader Authorization Bearer 'token JWT'. Token nécessaire à l'authentification.
+ * 
  * @apiParam {Number} id ID du type d'appareil à supprimer.
  *
  * @apiSuccess {String} message Type supprimé avec succès.

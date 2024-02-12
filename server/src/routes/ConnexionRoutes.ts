@@ -14,6 +14,8 @@ const router = express.Router();
  * @apiName GetConnexions
  * @apiGroup Connexions
  *
+ * @apiHeader Authorization Bearer 'token JWT'. Token nécessaire à l'authentification.
+ *
  * @apiParam {Number} [idAppareilParent] ID de l'appareil parent.
  * @apiParam {Number} [idAppareilEnfant] ID de l'appareil enfant.
  * @apiParam {String} [dateDebut] Date de début de la connexion (au format 'YYYY-MM-DD'). Renvoie les dates de début se trouvant après ce paramètre.
@@ -203,6 +205,8 @@ router.get('/', async (req: Request, res: Response) => {
  * @apiName GetConnexionById
  * @apiGroup Connexions
  *
+ * @apiHeader Authorization Bearer 'token JWT'. Token nécessaire à l'authentification.
+ *
  * @apiParam {Number} id ID de la connexion à récupérer.
  *
  * @apiSuccess {Number} idConnexion ID de la connexion.
@@ -308,6 +312,8 @@ router.get('/:id', async (req: Request, res: Response) => {
  * @apiName CreateConnexion
  * @apiGroup Connexions
  *
+ * @apiHeader Authorization Bearer 'token JWT'. Token nécessaire à l'authentification.
+ *
  * @apiBody {Number} idAppareilParent ID de l'appareil parent.
  * @apiBody {Number} idAppareilEnfant ID de l'appareil enfant.
  * @apiBody {Date} dateDebut Date de début de la connexion (au format 'YYYY-MM-DD').
@@ -403,6 +409,8 @@ router.post('/', async (req: Request, res: Response) => {
  * @apiVersion 0.1.0
  * @apiName UpdateConnexion
  * @apiGroup Connexions
+ *
+ * @apiHeader Authorization Bearer 'token JWT'. Token nécessaire à l'authentification.
  *
  * @apiParam {Number} id ID de la connexion à mettre à jour.
  * @apiBody {Number} [idAppareilParent] ID de l'appareil parent.
@@ -523,6 +531,8 @@ router.put('/:id', async (req: Request, res: Response) => {
  * @apiVersion 0.1.0
  * @apiName DeleteConnexion
  * @apiGroup Connexions
+ *
+ * @apiHeader Authorization Bearer 'token JWT'. Token nécessaire à l'authentification.
  *
  * @apiParam {Number} id ID de la connexion à supprimer.
  *

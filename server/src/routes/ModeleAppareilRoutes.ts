@@ -11,6 +11,8 @@ const router = express.Router();
  * @apiName GetModelesAppareils
  * @apiGroup ModeleAppareil
  *
+ * @apiHeader Authorization Bearer 'token JWT'. Token nécessaire à l'authentification.
+ * 
  * @apiParam {String} [nomModele] Nom du modèle d'appareil à filtrer.
  * @apiParam {String} [nomType] Nom du type d'appareil associé au modèle.
  * @apiParam {Number} [idTypeAppareil] ID du type d'appareil associé au modèle.
@@ -87,6 +89,8 @@ router.get('/', async (req: Request, res: Response) => {
  * @apiName GetModeleAppareilById
  * @apiGroup ModeleAppareil
  *
+ * @apiHeader Authorization Bearer 'token JWT'. Token nécessaire à l'authentification.
+ *
  * @apiParam {Number} id ID du modèle d'appareil à récupérer.
  *
  * @apiSuccess {Number} idModele ID du modèle d'appareil.
@@ -136,6 +140,8 @@ router.get('/:id', async (req: Request, res: Response) => {
  * @apiVersion 0.1.0
  * @apiName CreateModeleAppareil
  * @apiGroup ModeleAppareil
+ *
+ * @apiHeader Authorization Bearer 'token JWT'. Token nécessaire à l'authentification.
  *
  * @apiBody {String} nomModele Nom du modèle d'appareil à créer.
  * @apiBody {Number} idTypeAppareil ID du type d'appareil associé au modèle.
@@ -190,6 +196,8 @@ router.post('/', async (req: Request, res: Response) => {
  * @apiVersion 0.1.0
  * @apiName UpdateModeleAppareil
  * @apiGroup ModeleAppareil
+ *
+ * @apiHeader Authorization Bearer 'token JWT'. Token nécessaire à l'authentification.
  *
  * @apiParam {Number} id ID du modèle d'appareil à mettre à jour.
  * @apiBody {String} [nomModele] Nouveau nom du modèle d'appareil.
@@ -257,6 +265,8 @@ router.put('/:id', async (req: Request, res: Response) => {
  * @apiVersion 0.1.0
  * @apiName DeleteModeleAppareil
  * @apiGroup ModeleAppareil
+ *
+ * @apiHeader Authorization Bearer 'token JWT'. Token nécessaire à l'authentification.
  *
  * @apiParam {Number} id ID du modèle d'appareil à supprimer.
  *

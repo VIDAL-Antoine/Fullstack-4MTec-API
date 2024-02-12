@@ -2,13 +2,13 @@
 
 ![Capture d'écran de la page d'accueil](screenshots/screenshot-home.png)
 
-## Introduction
+# Introduction
 
 Ce projet contient la partie frontend de notre application (réalisée avec Vue v2). Elle permet de visualiser les données de la base de données et d'interagir avec elles (via l'API).
 
 La plupart des éléments de la page web ont été réalisés avec la librairie Vuetify.
 
-## Structure du projet
+# Structure du projet
 
 Le code source du projet se trouve dans le dossier `src`. Son contenu est le suivant :
 
@@ -18,20 +18,22 @@ Le code source du projet se trouve dans le dossier `src`. Son contenu est le sui
 - `components`: dossier contenant la liste des différents composants de l'application
   - `FooterComponent.vue` : le footer de l'application
   - `ListeAppareils.vue` : le composant principal de notre application permettant de visualiser les données
+  - `LoginPage.vue` : la page de login permettant d'accéder aux données et de manipuler l'API
   - `NavBar.vue` : le header de notre application
   - `NotFound.vue` : le composant à afficher lorsque la page demandée n'existe pas
+  - `SignUpPage.vue` : la page de création de compte pour obtenir l'accès à l'API
 
-## Setup du projet
+# Setup du projet
 ```
 npm install
 ```
 
-### Lancer le serveur de développement
+## Lancer le serveur de développement
 ```
 npm run serve
 ```
 
-### Construire le serveur de production
+## Construire le serveur de production
 ```
 npm run build
 ```

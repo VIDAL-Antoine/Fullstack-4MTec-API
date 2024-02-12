@@ -1,5 +1,6 @@
 import express from 'express';
 import User from '../models/UserModel';
+import { postUserSchema } from '../schemas/UserSchema';
 
 const router = express.Router();
 
@@ -7,7 +8,7 @@ const router = express.Router();
  * @api {post} /signup S'inscrire en tant que nouvel utilisateur pour accéder à l'API
  * @apiVersion 0.1.0
  * @apiName SignUpUser
- * @apiGroup Utilisateurs
+ * @apiGroup Authentification
  *
  * @apiBody {String} username Nom de l'utilisateur à créer.
  * @apiBody {String} password Mot de passe de l'utilisateur à créer.
@@ -29,19 +30,24 @@ const router = express.Router();
  */
 router.post('/', async (req, res) => {
   const { username, password } = req.body;
+ 
+  const { error } = postUserSchema.validate(req.body);
+  if (error) {
+    return res.status(400).json({ error: error.details[0].message });
+  }
   
   if (!username || username.trim() === '') {
-    return res.status(400).json({ message: 'Le nom d\'utilisateur est vide' });
+    return res.status(400).json({ error: 'Le nom d\'utilisateur est vide' });
   }
 
   if (!password || password.trim() === '') {
-    return res.status(400).json({ message: 'Le mot de passe est vide' });
+    return res.status(400).json({ error: 'Le mot de passe est vide' });
   }
 
   try {
     const existingUser = await User.findOne({ where: { username } });
     if (existingUser) {
-      return res.status(400).json({ message: 'Nom d\'utilisateur déjà pris' });
+      return res.status(400).json({ error: 'Nom d\'utilisateur déjà pris' });
     }
 
     const hashedPassword = await User.hashPassword(password);
@@ -50,7 +56,7 @@ router.post('/', async (req, res) => {
     res.status(201).json({ user: newUser });
   } catch (error) {
     console.error('Erreur lors de la création de l\'utilisateur:', error);
-    res.status(500).json({ message: 'Erreur lors de la création de l\'utilisateur' });
+    res.status(500).json({ error: 'Erreur lors de la création de l\'utilisateur' });
   }
 });
 
