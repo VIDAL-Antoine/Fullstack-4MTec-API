@@ -235,8 +235,10 @@ export default defineComponent({
       this.appareils.sort((a, b) => a.idAppareil - b.idAppareil);
 
       const connexionsResponse = await axios.get(`${API_BASE_URL}/connexions`);
-      this.connexions = connexionsResponse.data;
-      this.connexions.sort((a, b) => a.idConnexion - b.idConnexion);
+      this.connexions = connexionsResponse.data.map((connexion: { dateFin: string; }) => ({
+        ...connexion,
+        dateFin: connexion.dateFin === '9999-12-31' ? 'Indéfini' : connexion.dateFin
+      }));
       this.chargerOptionsNomModele();
       this.chargerAdressesMACInstallees();
     } catch (error) {
@@ -330,7 +332,10 @@ export default defineComponent({
           await this.deconnecterAppareils(appareil.idAppareil, false); // Enfant
 
           const response = await axios.get(`${API_BASE_URL}/connexions`);
-          this.connexions = response.data;
+          this.connexions = response.data.map((connexion: { dateFin: string; }) => ({
+            ...connexion,
+            dateFin: connexion.dateFin === '9999-12-31' ? 'Indéfini' : connexion.dateFin
+          }));
         }
 
         await axios.put(`${API_BASE_URL}/appareils/${appareil.idAppareil}`, {
@@ -384,7 +389,10 @@ export default defineComponent({
         });
 
         const response = await axios.get(`${API_BASE_URL}/connexions`);
-        this.connexions = response.data;
+        this.connexions = response.data.map((connexion: { dateFin: string; }) => ({
+          ...connexion,
+          dateFin: connexion.dateFin === '9999-12-31' ? 'Indéfini' : connexion.dateFin
+        }));
 
         this.MACParentSelectionne = null;
         this.MACEnfantSelectionne = null;
