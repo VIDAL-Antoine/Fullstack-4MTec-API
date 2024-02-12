@@ -371,7 +371,7 @@ router.post('/', async (req: Request, res: Response) => {
     return res.status(400).json({ error: "L'appareil enfant doit être à l'état 'installé' pour être connecté."});
   }
 
-  if (dateDebut >= dateFin) {
+  if (dateDebut > dateFin) {
     return res.status(400).json({ error: "La date de début doit être antérieure à la date de fin."});
   }
 
@@ -455,7 +455,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     return res.status(400).json({ error: "Le parent et l'enfant doivent être des appareils différents."})
   }
 
-  if (dateDebut >= dateFin || connexion.dateDebut >= dateFin || connexion.dateFin <= dateDebut) {
+  if (dateDebut > dateFin || connexion.dateDebut > dateFin || connexion.dateFin < dateDebut) {
     return res.status(400).json({ error: "La date de début doit être antérieure à la date de fin."});
   }
 
