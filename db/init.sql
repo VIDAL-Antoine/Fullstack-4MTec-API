@@ -42,3 +42,11 @@ CREATE TABLE connexions (
     date_debut DATE NOT NULL,
     date_fin DATE NOT NULL
 );
+
+--- Users
+
+CREATE TABLE users (
+    id serial PRIMARY KEY,
+    username character varying(255) NOT NULL,
+    password character varying(255) NOT NULL
+);
