@@ -69,7 +69,7 @@ POSTGRES_HOST=db # pour le service docker-compose nommé "db"
 JWT_SECRET_KEY=<clé secrète ici>
 ```
 
-Il suffit simplement de copier ces lignes dans le fichier `.env`. Les variables importantes ici sont `POSTGRES_HOST` et `JWT_SECRET_KEY`. Il est possible de changer la valeur de `POSTGRES_DB`, toutefois celle-ci doit être égale à celle du fichier `./db/init.sql`.
+Il suffit simplement de copier ces lignes dans le fichier `./server/.env` à l'aide de l'éditeur de texte de votre choix. Les variables importantes ici sont `POSTGRES_HOST` et `JWT_SECRET_KEY`. Il est possible de changer la valeur de `POSTGRES_DB`, toutefois celle-ci doit être égale à celle du fichier `./db/init.sql`.
 
 ### POSTGRES_HOST
 
@@ -84,14 +84,14 @@ Pour générer une clé secrète, vous pouvez lancer `node` sur un terminal et e
 require('crypto').randomBytes(32).toString('hex');
 ```
 
-Ceci va générer une clé que vous devrez insérer dans votre fichier `server/.env` (à la place de `<clé secrète ici>`). Vous pouvez changer la longueur de la clé (ici 32 caractères) et l'encodage (ici hex) selon les besoins de votre projet.
+Ceci va générer une clé que vous devrez insérer dans votre fichier `server/.env` (à la place de `<clé secrète ici>`) à l'aide de l'éditeur de texte de votre choix. Vous pouvez changer la longueur de la clé (ici 32 caractères) et l'encodage (ici hex) selon les besoins de votre projet.
 
 Une fois que le fichier `./server/.env` est créé et que les variables importantes ont les valeurs adéquates, il est recommandé de déployer l'application avec Docker Compose.
 
 ## Déploiement avec Docker Compose (recommandé)
 
 1. Assurez-vous que Docker Compose est installé sur votre machine.
-2. À la racine du projet, exécutez la commande : `docker-compose build`. Ceci construirera les conteneurs Docker. Une fois la construction terminée, vous pouvez lancer l'application avec `docker-compose up` (avec le flag `-d` si vous voulez lancer en arrière-plan). Les prochaines fois où vous voudrez lancer l'application vous pouvez uniquement lancer `docker-compose up` car les conteneurs seront déjà construits.
+2. À la racine du projet (donc faire `cd ..` si vous venez d'éditer le fichier `.env` du dossier `server`), exécutez la commande : `docker-compose build`. Ceci construirera les conteneurs Docker. Une fois la construction terminée, vous pouvez lancer l'application avec `docker-compose up` (avec le flag `-d` si vous voulez lancer en arrière-plan). Les prochaines fois où vous voudrez lancer l'application vous pouvez uniquement lancer `docker-compose up` car les conteneurs seront déjà construits.
 3. Accédez à l'application web via l'URL : `http://localhost:8080` et à l'API via l'URL : `http://localhost:3000` (inaccessible car vous n'êtes pas encore authentifié).
 
 ## Déploiement manuel (utile à des fins de développement)

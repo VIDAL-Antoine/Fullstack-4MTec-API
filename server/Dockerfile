@@ -4,7 +4,7 @@ WORKDIR /server
 
 COPY package*.json /server/
 
-RUN npm install --omit=dev
+RUN npm install
 
 COPY . /server/
 
