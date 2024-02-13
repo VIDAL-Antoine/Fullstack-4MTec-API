@@ -99,9 +99,10 @@ Une fois que le fichier `./server/.env` est créé et que les variables importan
 Pour les personnes ne disposant pas de Docker Compose ou souhaitant développer localement, il est possible de lancer les applications manuellement.
 
 1. Assurez-vous que le fichier `./server/.env` est bien configuré, notamment la valeur `POSTGRES_HOST` qui doit être à `localhost` et que vous avez généré une clé secrète pour `JWT_SECRET_KEY`.
-2. Installer les dépendances pour le client : `cd client && npm install`
-3. Installer les dépendances pour le serveur : `cd server && npm install`
-4. Lancer le client avec `cd client && npm run serve` (qui sera disponible sur `http://localhost:8080`) et le serveur (sur un autre terminal) avec `cd server && npm run serve` (qui sera disponible sur `http://localhost:3000` mais sera inaccessible car vous n'êtes pas encore authentifié)
+2. Connectez-vous sur PostgreSQL pour insérer les données de base (par exemple `sudo su - postgres` puis `psql -U postgres`). Exécutez les commandes des fichiers `./db/init.sql` puis `./db/seed.sql` (vous pouvez simplement les copier-coller) pour aggrémenter la base de données des données nécessaires à son fonctionnement.
+3. Installer les dépendances pour le client : `cd client && npm install`
+4. Installer les dépendances pour le serveur : `cd server && npm install`
+5. Lancer le client avec `cd client && npm run serve` (qui sera disponible sur `http://localhost:8080`) et le serveur (sur un autre terminal) avec `cd server && npm run serve` (qui sera disponible sur `http://localhost:3000` mais sera inaccessible car vous n'êtes pas encore authentifié)
 
 ## Authentification
 
@@ -109,11 +110,11 @@ Maintenant que l'application est déployé, vous devez vous authentifier pour ob
 
 ### Frontend
 
-Après avoir lancé `docker-compose up`, rendez-vous sur `http://localhost:8080/signup` pour créer un compte (ou cliquez sur le bouton `Sign Up` dans la barre de navigation). Saisissez ensuite votre nom d'utilisateur et votre mot de passe (ils ne peuvent pas être vides). Cliquez ensuite sur le bouton `Sign Up` en-dessous. Si la création de compte a fonctionné, vous serez redirigé vers la page de login (`http://localhost:8080/login`). Saisissez le nom d'utilisateur et le mot de passe de votre nouveau compte pour vous connecter. Si ceux-ci sont corrects, vous serez dirigé vers la page principale de l'application (`http://localhost:8080/appareils`). Celle-ci contient les données de l'application que vous pouvez manipuler et modifier. Vous pouvez vous déconnecter en cliquant sur le bouton `Logout` de la barre de navigation si vous souhaitez quitter l'application.
+Rendez-vous sur `http://localhost:8080/signup` pour créer un compte (ou cliquez sur le bouton `Sign Up` dans la barre de navigation). Saisissez ensuite votre nom d'utilisateur et votre mot de passe (ils ne peuvent pas être vides). Cliquez ensuite sur le bouton `Sign Up` en-dessous. Si la création de compte a fonctionné, vous serez redirigé vers la page de login (`http://localhost:8080/login`). Saisissez le nom d'utilisateur et le mot de passe de votre nouveau compte pour vous connecter. Si ceux-ci sont corrects, vous serez dirigé vers la page principale de l'application (`http://localhost:8080/appareils`). Celle-ci contient les données de l'application que vous pouvez manipuler et modifier. Vous pouvez vous déconnecter en cliquant sur le bouton `Logout` de la barre de navigation si vous souhaitez quitter l'application.
 
 ### Backend
 
-Après avoir lancé `docker-compose up`, l'API devient disponible sur `http://localhost:3000`. La route pour se créer un compte est `http://localhost:3000/signup` et `http://localhost:3000/login` pour se connecter. Il faut envoyer une requête POST à ces routes pour se créer un compte ou se connecter, avec dans le body le `username` et le `password` (non vides). Ici les requêtes seront effecutées avec cURL.
+L'API devient disponible sur `http://localhost:3000` une fois le serveur lancé. La route pour se créer un compte est `http://localhost:3000/signup` et `http://localhost:3000/login` pour se connecter. Il faut envoyer une requête POST à ces routes pour se créer un compte ou se connecter, avec dans le body le `username` et le `password` (non vides). Ici les requêtes seront effecutées avec cURL.
 
 - Pour se créer un compte :
 
@@ -227,7 +228,7 @@ La liste des tokens révoqués est non persistante, ce qui signifie qu'elle n'es
 # Notes Supplémentaires
 
 - Assurez-vous que les ports nécessaires (par exemple, 8080 pour le client et 3000 pour le serveur) ne sont pas utilisés par d'autres applications sur votre machine.
-- Il peut être nécessaire de stopper le service PostgreSQL pour permettre à Docker d'initialiser un conteneur PostgreSQL. Ceci peut se faire avec la commande : `sudo service postgresql stop`. `sudo service postgresql start` permet de démarrer le service si nécessaire.
+- Il peut être nécessaire de stopper le service PostgreSQL pour permettre à Docker d'initialiser un conteneur PostgreSQL. Ceci peut se faire avec la commande : `sudo service postgresql stop`. `sudo service postgresql start` permet de démarrer le service si nécessaire (par exemple pour le développement local).
 
 # Crédits
 

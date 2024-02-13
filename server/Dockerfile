@@ -4,10 +4,10 @@ WORKDIR /server
 
 COPY package*.json /server/
 
-RUN npm install
+RUN npm install --production
 
 COPY . /server/
 
-EXPOSE 3000
+RUN npm run build
 
-CMD [ "npm", "run", "serve"]
+CMD [ "npm", "start"]

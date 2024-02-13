@@ -1,13 +1,19 @@
-FROM node:20.11.0-bullseye
+FROM node:20.11.0-bullseye AS build-stage
 
-WORKDIR /client
+WORKDIR /app
 
-COPY package*.json /client/
+COPY package*.json ./
 
-RUN npm install
+RUN npm install --production
 
-COPY . /client/
+COPY ./ .
 
-EXPOSE 8080
+RUN npm run build
 
-CMD [ "npm", "run", "serve"]
+FROM nginx:stable-alpine AS production-stage
+
+RUN mkdir /app
+
+COPY --from=build-stage /app/dist /app
+
+COPY nginx.conf /etc/nginx/nginx.conf
