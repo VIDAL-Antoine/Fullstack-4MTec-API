@@ -18,6 +18,8 @@ Le dossier client contient le code de l'application web développée avec Vue.js
 
 - `Dockerfile` : Ce fichier contient les instructions pour la construction de l'image Docker pour le client Vue.js. Il indique à Docker comment construire un conteneur exécutable contenant l'application client Vue.js.
 
+- `docs` : Ce dossier contient différents documents qui ne sont pas du code (par exemple des diaporamas de présentation).
+
 Il y a également différents fichiers .json de configuration.
 
 ## Structure du Serveur (Node.js avec Express.js)
